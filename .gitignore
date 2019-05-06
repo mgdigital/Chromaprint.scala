@@ -1,0 +1,5 @@
+.dockerignore
+.idea
+project/project
+project/target
+target
