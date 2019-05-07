@@ -5,9 +5,9 @@ import scala.math.{cos,Pi}
 object framer {
 
   def hammingWindow(size: Int): Vector[Double] =
-    (0 until size).toVector.map { i =>
+    (0 until size).map { i =>
       0.54 - 0.46 * cos(i.toDouble * 2D * Pi / (size - 1))
-    }
+    }.toVector
 
   def scaledHammingWindow(size: Int, scale: Double): Vector[Double] =
     hammingWindow(size).map(_ * scale)
@@ -17,7 +17,7 @@ object framer {
 
   def applyHammingWindow(window: Vector[Double], input: Seq[Short]): Vector[Double] = {
     require(window.length >= input.length)
-    input.toVector.zip(window).map(e => e._1.toDouble * e._2)
+    input.zip(window).map(e => e._1.toDouble * e._2).toVector
   }
 
   final case class Config
@@ -29,15 +29,13 @@ object framer {
     val step: Int =
       frameSize - overlap
 
-    val window: Vector[Double] =
+    lazy val window: Vector[Double] =
       shortHammingWindow(frameSize)
   }
 
-  var c: Int = 0
-
   def apply(config: Config, input: Seq[Short]): Seq[Vector[Double]] =
     input.sliding(config.frameSize, config.step)
-      .toStream
       .takeWhile(_.length == config.frameSize)
       .map(applyHammingWindow(config.window, _))
+      .toSeq
 }

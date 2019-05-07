@@ -6,7 +6,7 @@ object simHash {
 
   val length: Int = 32
 
-  def apply(data: Vector[UInt]): UInt =
+  def apply(data: Seq[UInt]): UInt =
     data.foldLeft(Vector.fill[Int](length)(0)) {
       (hash, el) =>
         (0 until length).foldLeft(hash) {

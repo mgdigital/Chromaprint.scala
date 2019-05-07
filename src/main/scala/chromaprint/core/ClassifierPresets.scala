@@ -9,7 +9,7 @@ object ClassifierPresets {
   // Used for http://oxygene.sk/lukas/2010/07/introducing-chromaprint/
   // Trained on a randomly selected test data
   val preset0: Classifier.Config =
-  Classifier.Config(
+    Classifier.Config(
       Vector(
         Classifier(Filter(0, 0, 3, 15), Quantizer(2.10543, 2.45354, 2.69414)),
         Classifier(Filter(1, 0, 4, 14), Quantizer(-0.345922, 0.0463746, 0.446251)),

@@ -89,7 +89,7 @@ object chroma {
     import config._
 
     def features(frame: Vector[Double]): Vector[Double] =
-      (0 until numBands).toVector.map(featureBand(frame, _))
+      (0 until numBands).map(featureBand(frame, _)).toVector
 
     def featureBand(frame: Vector[Double], band: Int): Double =
       if (interpolate) {
