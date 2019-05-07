@@ -1,5 +1,7 @@
 package chromaprint.core
 
+import scala.language.implicitConversions
+
 import java.io.{File, IOException, InputStream}
 import java.net.URL
 
@@ -26,19 +28,19 @@ object AudioSource {
   def bytePairToShort(big: Byte, little: Byte): Short =
     ((0xff & big) << 8 | (0xff & little)).toShort
 
-  def apply(file: File): AudioSystemSource =
+  implicit def apply(file: File): AudioSystemSource =
     new AudioSystemSource {
       def audioInputStream: Either[AudioSourceException,AudioInputStream] =
         catchAudioSystemException(() => AudioSystem.getAudioInputStream(file))
     }
 
-  def apply(url: URL): AudioSystemSource =
+  implicit def apply(url: URL): AudioSystemSource =
     new AudioSystemSource {
       def audioInputStream: Either[AudioSourceException,AudioInputStream] =
         catchAudioSystemException(() => AudioSystem.getAudioInputStream(url))
     }
 
-  def apply(stream: InputStream): AudioSystemSource =
+  implicit def apply(stream: InputStream): AudioSystemSource =
     new AudioSystemSource {
       def audioInputStream: Either[AudioSourceException,AudioInputStream] =
         stream match {
