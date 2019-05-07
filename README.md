@@ -81,7 +81,7 @@ Result 1 with score 0.923195:
 (SBT repository details to be published shortly)
 
 ```scala
-import chromaprint.core.{AudioSource,fingerprinter}
+import chromaprint.core.fingerprinter
 import java.io.File
 
 val file = new File("/audio/Pocket Calculator.flac")
