@@ -23,7 +23,7 @@ The algorithm performs a pipeline of operations on an audio stream to extract it
 
 ### Requirements
 
-The [FFmpeg][7] library must be installed, along with codecs for files to be analyzed, the `libavcodec-extra` on Debian should provide all of these.
+The [FFmpeg][7] library must be installed, along with codecs for files to be analyzed, the `libavcodec-extra` package on Debian should provide all of these.
 
 ### Build and run with SBT
 
