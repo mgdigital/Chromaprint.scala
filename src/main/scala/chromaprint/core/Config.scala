@@ -13,6 +13,7 @@ object Config {
     val silenceThreshold: Short = 0
     val classifiers: Classifier.Config = ClassifierPresets.default
     val interpolate: Boolean = false
+    val captureDuration: Boolean = true
   }
 }
 
@@ -27,7 +28,8 @@ final case class Config
   maxDuration: Int = Config.Defaults.maxDuration,
   silenceThreshold: Short = Config.Defaults.silenceThreshold,
   classifiers: Classifier.Config = Config.Defaults.classifiers,
-  interpolate: Boolean = Config.Defaults.interpolate
+  interpolate: Boolean = Config.Defaults.interpolate,
+  captureDuration: Boolean = Config.Defaults.captureDuration // Seq will be converted to IndexedSeq to capture length
 ) {
 
   lazy val maxBytes: Int =
