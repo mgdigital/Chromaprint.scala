@@ -10,7 +10,7 @@ It creates an [audio fingerprint][4] designed to identify near-identical audio t
 
 The algorithm performs a pipeline of operations on an audio stream to extract its fingerprint:
 
-- The audio is resampled to mono at 11500Hz
+- The audio is resampled to mono at 11025Hz
 - It is split into a series of short _frames_
 - A [Fast Fourier Transform][6] is performed on each frame to extract components of different frequencies
 - Audio features such as notes are extracted from each frame
@@ -21,9 +21,13 @@ The algorithm performs a pipeline of operations on an audio stream to extract it
 
 ## Installation and usage
 
+### Requirements
+
+The [FFmpeg][7] library must be installed, along with codecs for files to be analyzed, the `libavcodec-extra` on Debian should provide all of these.
+
 ### Build and run with SBT
 
-Install [SBT][7] and run the command line app:
+Install [SBT][8] and run the command line app:
 
 ```bash
 $ sbt run "/path/to/myaudiofile.mp3"
@@ -51,7 +55,7 @@ $ docker build -t chromaprint-scala .
 Then run the command line app (assuming audio file in current folder, double quotes needed for filenames containing spaces).
 
 ```bash
-$ docker run -ti -v $(pwd):/audio/ chromaprint-scala '"/audio/02 Pocket Calculator.flac"'
+$ docker run -ti -v $(pwd):/audio/ chromaprint-scala '"/audio/Pocket Calculator.flac"'
 ```
 
 ## Identify track with AcoustID
@@ -80,8 +84,8 @@ Result 1 with score 0.923195:
 import chromaprint.core.{AudioSource,fingerprinter}
 import java.io.File
 
-val source = AudioSource(new File("/audio/Pocket Calculator.flac"))
-val Right(fingerprint) = fingerprinter(source)(fftProvider = chromaprint.breeze.FFT)
+val file = new File("/audio/Pocket Calculator.flac")
+val Right(fingerprint) = fingerprinter(file)(fftProvider = chromaprint.breeze.FFT)
 
 println(fingerprint.compressed)
 // AQADtNQYhYkYnGhw7X...
@@ -89,7 +93,7 @@ println(fingerprint.compressed)
 ```
 See the code for the command line app under `chromaprint.fpcalc` for further examples.
 
-Note that the fingerprinter requires an implicit for the FFT (Fast Fourier Transform) implementation. Adapters are provided for [Breeze][8] and through [FFTW][9] via [JavaCPP Presets][10]. I have seen intermittent errors in the FFTW adapter so would recommend using Breeze.
+Note that the fingerprinter requires an implicit for the FFT (Fast Fourier Transform) implementation. Adapters are provided for [Breeze][9] and through [FFTW][10] via [JavaCPP Presets][11]. I have seen intermittent errors in the FFTW adapter so would recommend using Breeze.
 
 ---
 
@@ -99,7 +103,7 @@ Copyright (c) 2019 Mike Gibson, https://github.com/mgdigital. Original Chromapri
 
 For Chris.
 
----
+
 
 [1]: https://github.com/acoustid/chromaprint
 [2]: https://acoustid.org/
@@ -107,7 +111,8 @@ For Chris.
 [4]: https://en.wikipedia.org/wiki/Acoustic_fingerprint
 [5]: https://musicbrainz.org/
 [6]: https://en.wikipedia.org/wiki/Fast_Fourier_transform
-[7]: https://www.scala-sbt.org/download.html
-[8]: https://github.com/scalanlp/breeze
-[9]: http://www.fftw.org/
-[10]: https://github.com/bytedeco/javacpp-presets/tree/master/fftw
+[7]: https://ffmpeg.org/
+[8]: https://www.scala-sbt.org/download.html
+[9]: https://github.com/scalanlp/breeze
+[10]: http://www.fftw.org/
+[11]: https://github.com/bytedeco/javacpp-presets/tree/master/fftw
