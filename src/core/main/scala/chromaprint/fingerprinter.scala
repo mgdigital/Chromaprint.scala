@@ -34,7 +34,7 @@ trait fingerprinter {
           apply(
             config,
             audio
-          )(fftImpl)
+          )
         )
     }
 
