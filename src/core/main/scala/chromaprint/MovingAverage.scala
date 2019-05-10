@@ -1,8 +1,18 @@
 package chromaprint
 
-final case class MovingAverage (window: Int, data: List[Short] = List.empty) {
+object MovingAverage {
 
-  lazy val length: Int = data.length
+  def apply(window: Int): MovingAverage =
+    new MovingAverage(window, List.empty)
+}
+
+final case class MovingAverage (window: Int, data: List[Short]) {
+
+  require(window >= 1)
+
+  val length: Int = data.length
+
+  require(length <= window)
 
   lazy val sum: Int = data.sum
 
