@@ -49,21 +49,18 @@ trait fingerprinter {
     config: Config,
     audio: Seq[Short]
   )(implicit fftProvider: FFT): Fingerprint = {
-    truncateAudio(
-      config.maxBytes,
-      config.silenceThreshold,
-      audio
-    ) |>
-      (extractFrames(
-        config.framerConfig,
-        _
-      )) |>
-      (extractFeatures(
-        config.chromaConfig,
-        _
-      )) |>
-      (Image(_).integrate) |>
-      (createFingerprint(
+
+    def removeSilence(audio: Seq[Short]): Seq[Short] =
+      fingerprinter.removeSilence(config.silenceThreshold, audio)
+
+    def extractFrames(audio: Seq[Short]): Seq[Vector[Double]] =
+      fingerprinter.extractFrames(config.framerConfig, audio)
+
+    def extractFeatures(frames: Seq[Vector[Double]]): Seq[Vector[Double]] =
+      fingerprinter.extractFeatures(config.chromaConfig, frames)
+
+    def createFingerprint(integral: Image): Fingerprint =
+      fingerprinter.createFingerprint(
         config.classifiers,
         config.algorithm,
         if (config.captureDuration) {
@@ -71,18 +68,23 @@ trait fingerprinter {
         } else {
           None
         },
-        _
-      ))
+        integral
+      )
+
+    audio.take(config.maxBytes) |>
+      removeSilence |>
+      extractFrames |>
+      extractFeatures |>
+      createImage |>
+      createFingerprint
   }
 
-  def truncateAudio
+  def removeSilence
   (
-    maxBytes: Int,
     silenceThreshold: Short,
     audio: Seq[Short]
   ): Seq[Short] =
-    audio.take(maxBytes) |>
-      (silenceRemover(silenceThreshold, _))
+    silenceRemover(silenceThreshold, audio)
 
   def extractFrames
   (
@@ -90,7 +92,7 @@ trait fingerprinter {
     audio: Seq[Short]
   )(implicit fftProvider: FFT): Seq[Vector[Double]] =
     framer(config, audio) |>
-      (fftProvider(_))
+      fftProvider.apply
 
   def extractFeatures
   (
@@ -98,8 +100,14 @@ trait fingerprinter {
     frames: Seq[Vector[Double]]
   ): Seq[Vector[Double]] =
     chroma(config, frames) |>
-      (chromaFilter(_)) |>
-      (chromaNormalizer(_))
+      chromaFilter.apply |>
+      chromaNormalizer.apply
+
+  def createImage
+  (
+    frames: Seq[Vector[Double]]
+  ): Image =
+    Image(frames).integrate
 
   def createFingerprint
   (
