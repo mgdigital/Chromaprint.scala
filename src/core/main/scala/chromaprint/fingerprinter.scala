@@ -64,8 +64,8 @@ trait fingerprinter {
         chromaFilter.apply |>
         chromaNormalizer.apply
 
-    def createImage(frames: Seq[Vector[Double]]): Image =
-      Image(frames).integrate
+    def createImage(featureFrames: Seq[Vector[Double]]): Image =
+      Image(featureFrames).integrate
 
     def createFingerprint(integral: Image): Fingerprint =
       Fingerprint(
