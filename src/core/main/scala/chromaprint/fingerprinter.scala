@@ -50,6 +50,9 @@ trait fingerprinter {
     audio: Seq[Short]
   )(implicit fftProvider: FFT): Fingerprint = {
 
+    def truncated: Seq[Short] =
+      audio.take(config.maxBytes)
+
     def removeSilence(audio: Seq[Short]): Seq[Short] =
       silenceRemover(config.silenceThreshold, audio)
 
@@ -79,7 +82,7 @@ trait fingerprinter {
         )
       )
 
-    audio.take(config.maxBytes) |>
+    truncated |>
       removeSilence |>
       extractFrames |>
       extractFeatures |>
