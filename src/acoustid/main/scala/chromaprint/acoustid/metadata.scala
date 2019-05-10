@@ -25,7 +25,7 @@ object metadata {
   case class Recording
   (
     id: String,
-    duration: Int,
+    duration: Option[Int],
     title: String,
     artists: Vector[Artist]
   ) extends MetadataEntry

@@ -79,12 +79,31 @@ object lookup {
     implicit val recordingReads: Reads[metadata.Recording] = Json.reads[metadata.Recording]
     implicit val resultReads: Reads[metadata.Result] = Json.reads[metadata.Result]
     implicit val responseReads: Reads[OKResponse] = Json.reads[OKResponse]
+      .preprocess{
+        case responseObj @ JsObject(_) =>
+          (responseObj \ "results").asOpt[JsArray] match {
+            case Some(arr) =>
+              responseObj + ("results" -> JsArray(arr.value.filter{
+                case resultObj @ JsObject(_) =>
+                  resultObj.keys.contains("recordings")
+                case _ =>
+                  true
+              }))
+            case _ =>
+              responseObj
+          }
+        case o =>
+          o
+      }
+
     def parse(json: String): Either[LookupException,Response] =
       Json.fromJson[OKResponse](Json.parse(json)) match {
         case JsSuccess(response, _) =>
           Right(response)
         case e: JsError =>
-          Left(new LookupException("JSON error: " + e.errors.flatMap(_._2).map(_.message).mkString("; ")))
+          Left(new LookupException("JSON error: " +
+            e.errors.map(e => e._1.path.mkString("/") + ": " + e._2.map(_.message).mkString("; ")).mkString("; "))
+          )
       }
   }
 

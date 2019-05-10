@@ -149,12 +149,12 @@ object command {
             if (r.results.isEmpty) {
               Console.out.println("no results were found")
             } else {
-              r.results.groupBy(_.recordings(0).id).map(_._2(0)).zipWithIndex.foreach { t =>
+              r.results.zipWithIndex.foreach { t =>
                 val (result, i) = t
-                Console.out.println(s"Result ${i + 1} with score ${result.score}:")
+                Console.out.println(s"${result.id}: Result ${i + 1} with score ${result.score}:")
                 result.recordings.foreach { recording =>
                   Console.out.println(
-                    s"${recording.id} '${recording.title}' by '${recording.artists.map(_.name).mkString("; ")}'"
+                    s"${recording.id}: '${recording.title}' by '${recording.artists.map(_.name).mkString("; ")}'"
                   )
                 }
               }
