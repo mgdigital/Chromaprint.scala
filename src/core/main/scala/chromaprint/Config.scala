@@ -43,7 +43,7 @@ final case class Config
   silenceThreshold: Short,
   classifiers: Classifier.Config,
   interpolate: Boolean,
-  captureDuration: Boolean // Seq will be converted to IndexedSeq to capture length
+  captureDuration: Boolean
 ) {
 
   lazy val maxBytes: Int =

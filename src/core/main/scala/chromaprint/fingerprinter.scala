@@ -36,20 +36,10 @@ object fingerprinter {
     config: Config,
     audio: Seq[Short]
   )(implicit fftProvider: FFT): Fingerprint = {
-    val (inputAudio, duration): (Seq[Short], Option[Float]) =
-      if (config.captureDuration) {
-        audio.toIndexedSeq |>
-          (a => (
-            a,
-            Some(a.length.toFloat / config.sampleRate)
-          ))
-      } else {
-        (audio, None)
-      }
     truncateAudio(
       config.maxBytes,
       config.silenceThreshold,
-      inputAudio
+      audio
     ) |>
       (extractFrames(
         config.framerConfig,
@@ -63,7 +53,11 @@ object fingerprinter {
       (createFingerprint(
         config.classifiers,
         config.algorithm,
-        duration,
+        if (config.captureDuration) {
+          Some(audio.length / config.sampleRate)
+        } else {
+          None
+        },
         _
       ))
   }

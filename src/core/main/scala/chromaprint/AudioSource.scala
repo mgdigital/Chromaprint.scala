@@ -28,20 +28,29 @@ object AudioSource {
   def bytePairToShort(big: Byte, little: Byte): Short =
     ((0xff & big) << 8 | (0xff & little)).toShort
 
+  def convertBytes(bytes: Seq[Byte]): Seq[Short] =
+    bytes.grouped(2).map(p => bytePairToShort(p(1), p(0))).toSeq
+
   implicit def apply(file: File): AudioSystemSource =
     new AudioSystemSource {
+      def name: String =
+        file.getName
       def audioInputStream: Either[AudioSourceException,AudioInputStream] =
         catchAudioSystemException(() => AudioSystem.getAudioInputStream(file))
     }
 
   implicit def apply(url: URL): AudioSystemSource =
     new AudioSystemSource {
+      def name: String =
+        url.toString
       def audioInputStream: Either[AudioSourceException,AudioInputStream] =
         catchAudioSystemException(() => AudioSystem.getAudioInputStream(url))
     }
 
   implicit def apply(stream: InputStream): AudioSystemSource =
     new AudioSystemSource {
+      def name: String =
+        toString
       def audioInputStream: Either[AudioSourceException,AudioInputStream] =
         stream match {
           case s: AudioInputStream =>
@@ -60,7 +69,9 @@ object AudioSource {
 
 trait AudioSource {
 
-  def dataStream(sampleRate: Int): Either[AudioSource.AudioSourceException,Stream[Short]]
+  def name: String
+
+  def dataStream(sampleRate: Int): Either[AudioSource.AudioSourceException,Seq[Short]]
 }
 
 trait AudioSystemSource extends AudioSource {
@@ -123,32 +134,53 @@ trait AudioSystemSource extends AudioSource {
         }
     }
 
-  def dataStream: Either[AudioSourceException,Stream[Short]] =
+  def dataStream: Either[AudioSourceException,Seq[Short]] =
     dataStream(Config.Defaults.sampleRate)
 
-  def dataStream(sampleRate: Int): Either[AudioSourceException,Stream[Short]] = {
+  def dataStream(sampleRate: Int): Either[AudioSourceException,Seq[Short]] = {
     resampledAudioStream(sampleRate) match {
       case Left(e) =>
         Left(e)
       case Right(audio) =>
-        def read: Option[(Byte, Byte)] = {
+        def read: Option[Seq[Byte]] = {
           val arr = new Array[Byte](2)
           val n = audio.read(arr)
           if (n < 2) {
             audio.close()
             None
           } else {
-            Some(arr(1), arr(0))
+            Some(arr.take(2))
           }
         }
         Right(
-          Stream.continually(read)
-            .takeWhile(_.isDefined)
-            .flatten
-            .map(p => bytePairToShort(p._1, p._2))
+          convertBytes(
+            Stream.continually(read)
+              .takeWhile(_.isDefined)
+              .flatMap(_.getOrElse(Seq.empty[Byte]))
+          )
         )
     }
   }
+
+  def preload(): AudioSource =
+    new AudioSource {
+      val name: String =
+        AudioSystemSource.this.name
+      val dataStream: Either[AudioSourceException,Seq[Short]] =
+        AudioSystemSource.this.dataStream match {
+          case Left(e) =>
+            Left(e)
+          case Right(s) =>
+            Right(s.toStream.force)
+        }
+      def dataStream(sampleRate: Int): Either[AudioSourceException,Seq[Short]] =
+        sampleRate match {
+          case Config.Defaults.sampleRate =>
+            dataStream
+          case _ =>
+            AudioSystemSource.this.dataStream(sampleRate)
+        }
+    }
 
   protected def catchAudioSystemException[T](fn: () => T): Either[AudioSourceException,T] =
     try {
