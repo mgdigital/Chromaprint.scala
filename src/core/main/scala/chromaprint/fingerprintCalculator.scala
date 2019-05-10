@@ -12,12 +12,10 @@ object fingerprintCalculator {
       2
     ).map(UInt(_))
 
-  def apply(config: Classifier.Config, image: Image): Vector[UInt] = {
-    val integral = image.integrate
+  def apply(config: Classifier.Config, image: Image): Vector[UInt] =
     (0 until image.rows - config.maxFilterWidth + 1)
-      .map(subFingerprint(config, integral, _))
+      .map(subFingerprint(config, image, _))
       .toVector
-  }
 
   def subFingerprint
   (

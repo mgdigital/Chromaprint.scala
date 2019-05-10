@@ -62,7 +62,7 @@ trait fingerprinter {
         config.chromaConfig,
         _
       )) |>
-      (Image(_)) |>
+      (Image(_).integrate) |>
       (createFingerprint(
         config.classifiers,
         config.algorithm,
