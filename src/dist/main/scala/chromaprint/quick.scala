@@ -1,0 +1,5 @@
+package chromaprint
+
+class quick {
+
+}
