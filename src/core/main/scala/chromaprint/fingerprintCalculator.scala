@@ -12,9 +12,9 @@ object fingerprintCalculator {
       2
     ).map(UInt(_))
 
-  def apply(config: Classifier.Config, image: Image): Vector[UInt] =
-    (0 until image.rows - config.maxFilterWidth + 1)
-      .map(subFingerprint(config, image, _))
+  def apply(config: Classifier.Config, integral: Image): Vector[UInt] =
+    (0 until integral.rows - config.maxFilterWidth + 1)
+      .map(subFingerprint(config, integral, _))
       .toVector
 
   def subFingerprint
