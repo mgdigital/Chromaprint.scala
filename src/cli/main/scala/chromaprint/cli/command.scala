@@ -62,12 +62,12 @@ object command {
       copy(sources = sources :+ source)
   }
 
-  def apply(args: Vector[String])(implicit fftProvider: FFT): Unit =
+  def apply(args: Vector[String])(implicit fftImpl: FFT): Unit =
     parse(args).foreach(args => apply(args.params, args.sources))
 
   implicit val executionContext: ExecutionContext = ExecutionContext.global
 
-  def apply(params: Params, sources: Seq[AudioSource])(implicit fftProvider: FFT): Unit = {
+  def apply(params: Params, sources: Seq[AudioSource])(implicit fftImpl: FFT): Unit = {
     if (sources.isEmpty) {
       Console.err.println("No audio sources were specified!")
     } else {
@@ -101,7 +101,7 @@ object command {
 
   private def resultFuture
   (config: Config, source: AudioSource)
-  (implicit fftProvider: FFT): Future[Either[AudioSource.AudioSourceException,Fingerprint]] =
+  (implicit fftImpl: FFT): Future[Either[AudioSource.AudioSourceException,Fingerprint]] =
     Future {
       val name = source.name
       Console.out.println(s"Fingerprinting $name")

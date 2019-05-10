@@ -7,7 +7,7 @@ trait fingerprinter {
   def apply
   (
     strAudioSource: String
-  )(implicit fftProvider: FFT): Either[AudioSource.AudioSourceException,Fingerprint] =
+  )(implicit fftImpl: FFT): Either[AudioSource.AudioSourceException,Fingerprint] =
     AudioSource(strAudioSource) match {
       case Left(e) =>
         Left(e)
@@ -18,14 +18,14 @@ trait fingerprinter {
   def apply
   (
     audioSource: AudioSource
-  )(implicit fftProvider: FFT): Either[AudioSource.AudioSourceException,Fingerprint] =
+  )(implicit fftImpl: FFT): Either[AudioSource.AudioSourceException,Fingerprint] =
     apply(Presets.default, audioSource)
 
   def apply
   (
     config: Config,
     audioSource: AudioSource
-  )(implicit fftProvider: FFT): Either[AudioSource.AudioSourceException,Fingerprint] =
+  )(implicit fftImpl: FFT): Either[AudioSource.AudioSourceException,Fingerprint] =
     audioSource.dataStream(config.sampleRate) match {
       case Left(e) =>
         Left(e)
@@ -34,21 +34,21 @@ trait fingerprinter {
           apply(
             config,
             audio
-          )(fftProvider)
+          )(fftImpl)
         )
     }
 
   def apply
   (
     audio: Seq[Short]
-  )(implicit fftProvider: FFT): Fingerprint =
+  )(implicit fftImpl: FFT): Fingerprint =
     apply(Presets.default, audio)
 
   def apply
   (
     config: Config,
     audio: Seq[Short]
-  )(implicit fftProvider: FFT): Fingerprint = {
+  )(implicit fftImpl: FFT): Fingerprint = {
 
     def truncated: Seq[Short] =
       audio.take(config.maxBytes)
@@ -85,7 +85,7 @@ trait fingerprinter {
     truncated |>
       removeSilence |>
       extractFrames |>
-      fftProvider.apply |>
+      fftImpl.apply |>
       extractFeatures |>
       createImage |>
       createFingerprint
