@@ -51,71 +51,40 @@ trait fingerprinter {
   )(implicit fftProvider: FFT): Fingerprint = {
 
     def removeSilence(audio: Seq[Short]): Seq[Short] =
-      fingerprinter.removeSilence(config.silenceThreshold, audio)
+      silenceRemover(config.silenceThreshold, audio)
 
     def extractFrames(audio: Seq[Short]): Seq[Vector[Double]] =
-      fingerprinter.extractFrames(config.framerConfig, audio)
+      framer(config.framerConfig, audio)
 
     def extractFeatures(frames: Seq[Vector[Double]]): Seq[Vector[Double]] =
-      fingerprinter.extractFeatures(config.chromaConfig, frames)
+      chroma(config.chromaConfig, frames) |>
+        chromaFilter.apply |>
+        chromaNormalizer.apply
+
+    def createImage
+    (frames: Seq[Vector[Double]]): Image =
+      Image(frames).integrate
 
     def createFingerprint(integral: Image): Fingerprint =
-      fingerprinter.createFingerprint(
-        config.classifiers,
+      Fingerprint(
         config.algorithm,
         if (config.captureDuration) {
-          Some(audio.length / config.sampleRate)
+          Some(audio.length.toFloat / config.sampleRate)
         } else {
           None
         },
-        integral
+        fingerprintCalculator(
+          config.classifiers,
+          integral
+        )
       )
 
     audio.take(config.maxBytes) |>
       removeSilence |>
       extractFrames |>
       extractFeatures |>
+      fftProvider.apply |>
       createImage |>
       createFingerprint
   }
-
-  def removeSilence
-  (
-    silenceThreshold: Short,
-    audio: Seq[Short]
-  ): Seq[Short] =
-    silenceRemover(silenceThreshold, audio)
-
-  def extractFrames
-  (
-    config: framer.Config,
-    audio: Seq[Short]
-  )(implicit fftProvider: FFT): Seq[Vector[Double]] =
-    framer(config, audio) |>
-      fftProvider.apply
-
-  def extractFeatures
-  (
-    config: chroma.Config,
-    frames: Seq[Vector[Double]]
-  ): Seq[Vector[Double]] =
-    chroma(config, frames) |>
-      chromaFilter.apply |>
-      chromaNormalizer.apply
-
-  def createImage
-  (
-    frames: Seq[Vector[Double]]
-  ): Image =
-    Image(frames).integrate
-
-  def createFingerprint
-  (
-    classifiers: Classifier.Config,
-    algorithm: Int,
-    duration: Option[Float],
-    image: Image
-  ): Fingerprint =
-    fingerprintCalculator(classifiers, image) |>
-      (Fingerprint(algorithm, duration, _))
 }
