@@ -71,12 +71,13 @@ object command {
     if (sources.isEmpty) {
       Console.err.println("No audio sources were specified!")
     } else {
+      val useSources = if (params.preload) {
+        preloadedSources(sources)
+      } else {
+        sources
+      }
       val (secondsElapsed, results) = timed(() => {
-        val resultFutures = (if (params.preload) {
-          preloadedSources(sources)
-        } else {
-          sources
-        }).map { source => resultFuture(params.config, source).map(r => (source.name, r))}
+        val resultFutures = useSources.map { source => resultFuture(params.config, source).map(r => (source.name, r))}
         Await.result(Future.sequence(resultFutures), atMost = 60.seconds)
       })
       Console.out.println(s"Generated ${results.count(_._2.isRight)} fingerprints in ${secondsElapsed}s")
