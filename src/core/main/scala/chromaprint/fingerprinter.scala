@@ -85,8 +85,8 @@ trait fingerprinter {
     truncated |>
       removeSilence |>
       extractFrames |>
-      extractFeatures |>
       fftProvider.apply |>
+      extractFeatures |>
       createImage |>
       createFingerprint
   }
