@@ -1,6 +1,8 @@
 package chromaprint
 
-object fingerprinter {
+object fingerprinter extends fingerprinter
+
+trait fingerprinter {
 
   def apply
   (
