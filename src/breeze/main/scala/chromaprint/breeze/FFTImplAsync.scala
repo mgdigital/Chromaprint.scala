@@ -13,10 +13,12 @@ object FFTImplAsync extends FFTImpl {
 
   val timeout: Duration = 30.seconds
 
+  val grouping: Int = 100
+
   def computeFrames(input: Seq[Vector[Double]]): Seq[Vector[Complex]] =
     Await.result(
-      Future.sequence(input.map(i => Future { computeFrame(i) })),
+      Future.sequence(input.grouped(grouping).map(frames => Future { frames.map(computeFrame) })),
       atMost = timeout
-    )
+    ).foldLeft(Stream.empty[Vector[Complex]]){ (s, n) => s ++ n}
 
 }
