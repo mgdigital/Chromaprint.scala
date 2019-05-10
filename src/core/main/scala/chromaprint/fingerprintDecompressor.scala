@@ -19,7 +19,7 @@ object fingerprintDecompressor {
       Left(new DecompressorException("Invalid fingerprint (shorter than 5 bytes)"))
     } else {
       val ( header, body ) = bytes.splitAt(4)
-      val algorithm: Int = header.head.toInt
+      val algorithm: Int = header(0).toInt
       val length: Int = ((0xff & header(1)) << 16) | ((0xff & header(2)) << 8) | (0xff & header(3))
       if (algorithm < 0) {
         Left(new DecompressorException("Invalid algorithm"))
@@ -85,14 +85,14 @@ object fingerprintDecompressor {
   private def bytesToTriplets(bytes: Vector[Byte]): Vector[UShort] =
     bytes.grouped(3).flatMap { t =>
       Vector(
-        t.head & 0x07,
-        (t.head & 0x38) >> 3
+        t(0) & 0x07,
+        (t(0) & 0x38) >> 3
       ) ++ (t.lift(1) match {
         case None =>
           Vector.empty[Int]
         case Some(t1) =>
           Vector(
-            ((t.head & 0xc0) >> 6) | ((t1 & 0x01) << 2),
+            ((t(0) & 0xc0) >> 6) | ((t1 & 0x01) << 2),
             (t1 & 0x0e) >> 1,
             (t1 & 0x70) >> 4
           ) ++ (t.lift(2) match {
@@ -147,13 +147,13 @@ object fingerprintDecompressor {
   private def bytesToQuintets(bytes: Vector[Byte]): Vector[UShort] =
     bytes.grouped(5).flatMap{ q =>
       Vector(
-        q.head & 0x1f
+        q(0) & 0x1f
       ) ++ (q.lift(1) match {
         case None =>
           Vector.empty[Int]
         case Some(q1) =>
           Vector(
-            ((q.head & 0xe0) >> 5) | ((q1 & 0x03) << 3),
+            ((q(0) & 0xe0) >> 5) | ((q1 & 0x03) << 3),
             (q1 & 0x7c) >> 2
           ) ++ (q.lift(2) match {
             case None =>
@@ -192,7 +192,7 @@ object fingerprintDecompressor {
     normalBits.zip(exceptionBits).flatMap{ p =>
       p._1.zipWithIndex.map{ b =>
         if (b._1.toInt == 7) {
-          b._1 + p._2(b._2).get
+          b._1 + p._2(b._2).getOrElse{throw new RuntimeException("Exception bit not found")}
         } else {
           b._1
         }

@@ -5,28 +5,24 @@ object Presets {
   // scalastyle:off magic.number
 
   val algorithm1: Config =
-    Config(
+    Config.default.copy(
       algorithm = 1,
       classifiers = ClassifierPresets(0)
     )
 
   val algorithm2: Config =
-    Config(
-      algorithm = 2,
-      classifiers = ClassifierPresets(1)
-    )
+    Config.default
 
   val algorithm3: Config =
-    Config(
+    Config.default.copy(
       algorithm = 3,
       classifiers = ClassifierPresets(2),
       interpolate = true
     )
 
   val algorithm4: Config =
-    Config(
+    Config.default.copy(
       algorithm = 4,
-      classifiers = ClassifierPresets(1),
       silenceThreshold = 50
     )
 

@@ -9,7 +9,7 @@ class fingerprintCompressorSpec extends AbstractSpec {
   it should "compress 1 item 1 bit" in {
     val compressed = fingerprintCompressor(1, Vector(UInt(1)))
     val expected = Vector(0, 0, 0, 1, 1).map(_.toByte)
-    val actual = Base64.decode(compressed).right.get
+    val Right(actual) = Base64.decode(compressed)
 
     actual should equal (expected)
   }
@@ -17,7 +17,7 @@ class fingerprintCompressorSpec extends AbstractSpec {
   it should "compress 1 item 3 bits" in {
     val compressed = fingerprintCompressor(1, Vector(UInt(1 << 6)))
     val expected = Vector(0, 0, 0, 1, 7, 0).map(_.toByte)
-    val actual = Base64.decode(compressed).right.get
+    val Right(actual) = Base64.decode(compressed)
 
     actual should equal (expected)
   }
@@ -25,7 +25,7 @@ class fingerprintCompressorSpec extends AbstractSpec {
   it should "compress 1 item 1 bit except 2" in {
     val compressed = fingerprintCompressor(1, Vector(UInt(1 << 8)))
     val expected = Vector(0, 0, 0, 1, 7, 2).map(_.toByte)
-    val actual = Base64.decode(compressed).right.get
+    val Right(actual) = Base64.decode(compressed)
 
     actual should equal (expected)
   }
@@ -33,7 +33,7 @@ class fingerprintCompressorSpec extends AbstractSpec {
   it should "compress 2 items" in {
     val compressed = fingerprintCompressor(1, Vector(UInt(1), UInt(0)))
     val expected = Vector(0, 0, 0, 2, 65, 0).map(_.toByte)
-    val actual = Base64.decode(compressed).right.get
+    val Right(actual) = Base64.decode(compressed)
 
     actual should equal (expected)
   }
@@ -41,7 +41,7 @@ class fingerprintCompressorSpec extends AbstractSpec {
   it should "compress 2 items no change" in {
     val compressed = fingerprintCompressor(1, Vector(UInt(1), UInt(1)))
     val expected = Vector(0, 0, 0, 2, 1, 0).map(_.toByte)
-    val actual = Base64.decode(compressed).right.get
+    val Right(actual) = Base64.decode(compressed)
 
     actual should equal (expected)
   }

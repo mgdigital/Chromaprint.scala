@@ -92,9 +92,9 @@ object Classifier {
     def apply
     (
       filterNum: Int,
-      y: Int = 0,
-      height: Int = 0,
-      width: Int = 0
+      y: Int,
+      height: Int,
+      width: Int
     ): Filter =
       Filter(
         filters(filterNum),
@@ -142,7 +142,7 @@ object Classifier {
 
     lazy val length: Int = classifiers.length
 
-    lazy val maxFilterWidth: Int = classifiers.map(_.filter.width).max
+    lazy val maxFilterWidth: Int = classifiers.map(_.filter.width).foldLeft(0)(_ max _)
   }
 }
 

@@ -15,7 +15,7 @@ object fingerprintCompressor {
     var bits: Vector[Byte] = Vector.empty
     if (data.nonEmpty) {
       bits ++= (1 until data.length)
-          .foldLeft(processSubFingerprint(data.head)){
+          .foldLeft(processSubFingerprint(data(0))){
             (bits, i) =>
               bits ++ processSubFingerprint(data(i) ^ data(i - 1))
           }
@@ -64,14 +64,14 @@ object fingerprintCompressor {
   object BitStringWriter {
 
     def apply(): BitStringWriter =
-      new BitStringWriter()
+      new BitStringWriter(Vector.empty, 0, 0)
   }
 
   final class BitStringWriter private
   (
-    val bytes: Vector[Byte] = Vector.empty,
-    buffer: Int = 0,
-    bufferSize: Int = 0
+    val bytes: Vector[Byte],
+    buffer: Int,
+    bufferSize: Int
   ) {
 
     def flushedBytes: Vector[Byte] =
@@ -101,7 +101,7 @@ object fingerprintCompressor {
         buffer >>= 8
         bufferSize -= 8
       }
-      new BitStringWriter(value)
+      new BitStringWriter(value, 0, 0)
     }
   }
 

@@ -22,11 +22,20 @@ object chromaNormalizer {
         0D
     }
 
+  val defaultThreshold: Double = 0.01
+
+  def normalizeValues
+  (
+    values: Seq[Double],
+    norm: Double
+  ): Seq[Double] =
+    normalizeValues(values, norm, defaultThreshold)
+
   def normalizeValues
   (
     values: Seq[Double],
     norm: Double,
-    threshold: Double = 0.01
+    threshold: Double
   ): Seq[Double] =
     if (norm < threshold) {
       Seq.fill[Double](values.length)(0D)

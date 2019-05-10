@@ -23,16 +23,19 @@ object lookup {
 
   object Config {
 
+    def apply(): Config =
+      apply(None, defaultBaseUrl)
+
     def apply
     (
       clientId: String
     ): Config =
-      apply(Some(clientId))
+      apply(Some(clientId), defaultBaseUrl)
 
     def apply
     (
-      clientId: Option[String] = None,
-      baseUrl: Uri = defaultBaseUrl
+      clientId: Option[String],
+      baseUrl: Uri
     ): Config =
       new Config(
         clientId orElse lookup.clientId,
@@ -46,19 +49,25 @@ object lookup {
     baseUrl: Uri
   )
 
+  object Params {
+
+    val defaultMeta: Set[metadata.MetadataGroup] = Set(
+      metadata.recordings
+    )
+
+    def apply(fingerprint: Fingerprint): Params =
+      Params(fingerprint, defaultMeta)
+  }
+
   final case class Params
   (
     fingerprint: Fingerprint,
-    meta: Set[metadata.MetadataGroup] = Set(
-      metadata.recordings
-    )
+    meta: Set[metadata.MetadataGroup]
   )
 
   def url(config: Config, params: Params): Uri = {
     var url: Uri = config.baseUrl
-    if (config.clientId.isDefined) {
-      url = url.param("client", config.clientId.get)
-    }
+    config.clientId.foreach { clientId => url = url.param("client", clientId) }
     url.param("meta", params.meta.mkString(" "))
       .param("duration", params.fingerprint.duration.round.toString)
       .param("fingerprint", params.fingerprint.compressed)

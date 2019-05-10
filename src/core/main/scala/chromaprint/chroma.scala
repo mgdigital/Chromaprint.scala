@@ -82,7 +82,13 @@ object chroma {
 
   }
 
-  final case class Config(range: Range, interpolate: Boolean = false)
+  object Config {
+
+    def apply(range: Range): Config =
+      Config(range, interpolate = false)
+  }
+
+  final case class Config(range: Range, interpolate: Boolean)
 
   def apply(config: Config, frames: Seq[Vector[Double]]): Seq[Vector[Double]] = {
 

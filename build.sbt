@@ -15,8 +15,10 @@ lazy val commonSettings = Seq(
     target := baseDirectory.value / ".." / ".." / "target" / "modules" / name.value,
     artifactName := { (_, module, artifact) =>
       organizationName.value + "-" + artifact.name + "-" + module.revision + "." + artifact.extension
-    }
-  )
+    },
+    wartremoverErrors in Compile ++= Warts.unsafe.filterNot(Seq(Wart.Var, Wart.Throw).contains(_)),
+    wartremoverExcluded += baseDirectory.value / "test"
+)
 
 lazy val dependencies = new {
     val versions =

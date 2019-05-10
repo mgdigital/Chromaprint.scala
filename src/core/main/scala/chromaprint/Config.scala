@@ -3,7 +3,7 @@ package chromaprint
 object Config {
 
   object Defaults {
-    val algorithm: Int = 0
+    val algorithm: Int = 2
     val sampleRate: Int = 11025
     val frameSize: Int = 4096
     val overlap: Int = (frameSize.toDouble * 2 / 3).ceil.toInt
@@ -15,21 +15,35 @@ object Config {
     val interpolate: Boolean = false
     val captureDuration: Boolean = true
   }
+
+  val default = Config(
+    Defaults.algorithm,
+    Defaults.sampleRate,
+    Defaults.frameSize,
+    Defaults.overlap,
+    Defaults.minFreq,
+    Defaults.maxFreq,
+    Defaults.maxDuration,
+    Defaults.silenceThreshold,
+    Defaults.classifiers,
+    Defaults.interpolate,
+    Defaults.captureDuration
+  )
 }
 
 final case class Config
 (
-  algorithm: Int = Config.Defaults.algorithm,
-  sampleRate: Int = Config.Defaults.sampleRate,
-  frameSize: Int = Config.Defaults.frameSize,
-  overlap: Int = Config.Defaults.overlap,
-  minFreq: Int = Config.Defaults.minFreq,
-  maxFreq: Int = Config.Defaults.maxFreq,
-  maxDuration: Int = Config.Defaults.maxDuration,
-  silenceThreshold: Short = Config.Defaults.silenceThreshold,
-  classifiers: Classifier.Config = Config.Defaults.classifiers,
-  interpolate: Boolean = Config.Defaults.interpolate,
-  captureDuration: Boolean = Config.Defaults.captureDuration // Seq will be converted to IndexedSeq to capture length
+  algorithm: Int,
+  sampleRate: Int,
+  frameSize: Int,
+  overlap: Int,
+  minFreq: Int,
+  maxFreq: Int,
+  maxDuration: Int,
+  silenceThreshold: Short,
+  classifiers: Classifier.Config,
+  interpolate: Boolean,
+  captureDuration: Boolean // Seq will be converted to IndexedSeq to capture length
 ) {
 
   lazy val maxBytes: Int =

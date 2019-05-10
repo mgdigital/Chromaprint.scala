@@ -2,7 +2,7 @@ package chromaprint.fftw
 
 import java.util.concurrent.locks.{Lock, ReentrantLock}
 
-import chromaprint.FFT
+import chromaprint.{discard,FFT}
 import org.bytedeco.javacpp.fftw3._
 import org.bytedeco.javacpp.{DoublePointer, Loader, fftw3}
 
@@ -10,7 +10,7 @@ object FFTImpl extends FFT {
 
   import FFT._
 
-  Loader.load(classOf[fftw3])
+  discard(Loader.load(classOf[fftw3]))
 
   private val lock: Lock = new ReentrantLock()
 
@@ -25,7 +25,7 @@ object FFTImpl extends FFT {
 
   private def doComputeFrames(input: Seq[Vector[Double]]): Seq[Vector[Complex]] = {
 
-    val frameLength = input.head.length
+    val frameLength = input.headOption.map(_.length).getOrElse(0)
 
     val signal = new DoublePointer(frameLength * 2)
     val output = new DoublePointer(frameLength * 2)
@@ -34,13 +34,13 @@ object FFTImpl extends FFT {
 
     input.foldLeft(Vector.empty[Vector[Complex]]){ (fftFrames, frame) =>
 
-      signal.put(frame.toArray, 0, frameLength)
+      discard(signal.put(frame.toArray, 0, frameLength))
 
       fftw_execute(plan)
 
       val resultArray = new Array[Double](frameLength * 2)
 
-      output.get(resultArray)
+      discard(output.get(resultArray))
 
       val result = resultArray.toVector
 
