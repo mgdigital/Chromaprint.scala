@@ -55,9 +55,12 @@ object parse {
         .action((x, a) => a.withParams(_.copy(
           acoustid = a.params.acoustid.orElse(Some(lookup.Config())).map(_.copy(clientId = Some(x)))
         ))),
-      arg[File]("<file>...")
+      arg[String]("<source>...")
         .unbounded()
-        .action((x, a) => a.withSource(AudioSource(x)))
+        .action((x, a) => {
+          val Right(source) = AudioSource(x)
+          a.withSource(source)
+        })
         .text("files to fingerprint")
     )
   }

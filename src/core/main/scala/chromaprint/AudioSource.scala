@@ -1,9 +1,8 @@
 package chromaprint
 
 import scala.language.implicitConversions
-
 import java.io.{File, IOException, InputStream}
-import java.net.URL
+import java.net.{MalformedURLException, URL}
 
 import javax.sound.sampled.AudioFormat.Encoding
 import javax.sound.sampled._
@@ -46,6 +45,20 @@ object AudioSource {
       def audioInputStream: Either[AudioSourceException,AudioInputStream] =
         catchAudioSystemException(() => AudioSystem.getAudioInputStream(url))
     }
+
+  def apply(str: String): Either[AudioSource.AudioSourceException,AudioSource] = {
+    val file = new File(str)
+    if (file.isFile) {
+      Right(apply(file))
+    } else {
+      try {
+        Right(apply(new URL(str)))
+      } catch {
+        case _: MalformedURLException =>
+          Left(new AudioSourceException(s"Invalid audio source: '$str'"))
+      }
+    }
+  }
 
   implicit def apply(stream: InputStream): AudioSystemSource =
     new AudioSystemSource {

@@ -6,6 +6,17 @@ trait fingerprinter {
 
   def apply
   (
+    strAudioSource: String
+  )(implicit fftProvider: FFT): Either[AudioSource.AudioSourceException,Fingerprint] =
+    AudioSource(strAudioSource) match {
+      case Left(e) =>
+        Left(e)
+      case Right(audioSource) =>
+        apply(Presets.default, audioSource)
+    }
+
+  def apply
+  (
     audioSource: AudioSource
   )(implicit fftProvider: FFT): Either[AudioSource.AudioSourceException,Fingerprint] =
     apply(Presets.default, audioSource)
