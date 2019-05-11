@@ -34,6 +34,8 @@ ThisBuild / publishTo := {
 }
 ThisBuild / publishMavenStyle := true
 
+val makeVersionProperties = taskKey[Seq[File]]("Makes a version.properties file.")
+
 lazy val commonSettings = Seq(
     scalaVersion := "2.12.8",
     crossScalaVersions := Seq("2.11.12", "2.12.8"),
@@ -46,6 +48,13 @@ lazy val commonSettings = Seq(
     parallelExecution in Test := false,
     sourceDirectory := baseDirectory.value,
     target := baseDirectory.value / ".." / ".." / "target" / "modules" / name.value,
+    makeVersionProperties := {
+      val propFile = new File((resourceManaged in Compile).value, "version.properties")
+      val content = "version=%s\n" format version.value
+      IO.write(propFile, content)
+      Seq(propFile)
+    },
+    resourceGenerators in Compile += makeVersionProperties,
     wartremoverErrors in Compile ++= Warts.unsafe.filterNot(Set(Wart.Var, Wart.Throw).contains),
     wartremoverExcluded += baseDirectory.value / "test"
 )
