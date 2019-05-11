@@ -49,11 +49,11 @@ object parse {
         .action((x, a) => a.withParams(_.copy(showHash = x))),
       opt[Boolean]('a', "acoustid")
         .text("lookup matches from acoustid")
-        .action((x, a) => a.withParams(_.copy(acoustid = if (x) Some(lookup.Config()) else None))),
+        .action((x, a) => a.withParams(_.copy(acoustid = if (x) Some(lookup.Config.default) else None))),
       opt[String]("acoustid-client")
         .text("acoustid client id")
         .action((x, a) => a.withParams(_.copy(
-          acoustid = a.params.acoustid.orElse(Some(lookup.Config())).map(_.copy(clientId = Some(x)))
+          acoustid = a.params.acoustid.orElse(Some(lookup.Config.default)).map(_.withClientId(x))
         ))),
       arg[String]("<source>...")
         .unbounded()

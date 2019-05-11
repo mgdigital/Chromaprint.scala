@@ -23,31 +23,26 @@ object lookup {
 
   object Config {
 
-    def apply(): Config =
-      apply(None, defaultBaseUrl)
-
     def apply
     (
       clientId: String
     ): Config =
-      apply(Some(clientId), defaultBaseUrl)
+      new Config(Some(clientId), defaultBaseUrl)
 
-    def apply
-    (
-      clientId: Option[String],
-      baseUrl: Uri
-    ): Config =
-      new Config(
-        clientId orElse lookup.clientId,
-        baseUrl
-      )
+    val default: Config =
+      new Config(None, defaultBaseUrl)
+
   }
 
   final case class Config
   (
     clientId: Option[String],
     baseUrl: Uri
-  )
+  ) {
+
+    def withClientId(clientId: String): Config =
+      copy(clientId = Some(clientId))
+  }
 
   object Params {
 
