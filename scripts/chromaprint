@@ -1,0 +1,11 @@
+#!/bin/bash
+
+set -e
+
+JAR_PATH="./target/scala-$SCALA_VERSION"
+
+source $JAR_PATH/classes/version.properties
+
+JAR_FILE="$JAR_PATH/chromaprint-assembly-$version.jar"
+
+java -jar $JAR_FILE "$@"
