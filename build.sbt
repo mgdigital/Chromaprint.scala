@@ -1,9 +1,44 @@
+ThisBuild / organization := "com.github.mgdigital"
+ThisBuild / organizationName := "MGDigital"
+ThisBuild / organizationHomepage := Some(url("https://github.com/mgdigital"))
+
+ThisBuild / version := "0.1.7-SNAPSHOT"
+
+ThisBuild / scmInfo := Some(
+  ScmInfo(
+    url("https://github.com/mgdigital/Chromaprint.scala"),
+    "scm:git@github.com:mgdigital/Chromaprint.scala.git"
+  )
+)
+
+ThisBuild / developers := List(
+  Developer(
+    id    = "MGDigital",
+    name  = "Mike Gibson",
+    email = "mike+sonatype@mgdigital.co.uk",
+    url   = url("https://github.com/mgdigital")
+  )
+)
+
+ThisBuild / description := "A Scala implementation of the Chromaprint/AcoustID audio fingerprinting algorithm."
+ThisBuild / licenses := List("Apache 2" -> new URL("http://www.apache.org/licenses/LICENSE-2.0.txt"))
+ThisBuild / homepage := Some(url("https://github.com/mgdigital/Chromaprint.scala"))
+
+// Remove all additional repository other than Maven Central from POM
+ThisBuild / pomIncludeRepository := { _ => false }
+ThisBuild / publishTo := {
+  val nexus = "https://oss.sonatype.org/"
+  if (isSnapshot.value) {
+    Some("snapshots" at nexus + "content/repositories/snapshots")
+  } else {
+    Some("releases" at nexus + "service/local/staging/deploy/maven2")
+  }
+}
+ThisBuild / publishMavenStyle := true
+
 lazy val commonSettings = Seq(
-    version := "0.1.0-SNAPSHOT",
-    organization := "com.mgdigital",
-    organizationName := "chromaprint",
     scalaVersion := "2.12.8",
-    crossScalaVersions := Seq("2.8.2", "2.9.3", "2.10.7", "2.11.12"),
+    crossScalaVersions := Seq("2.11.12", "2.12.8"),
     resolvers ++=
       Seq(
         Resolver.mavenCentral,
@@ -13,17 +48,14 @@ lazy val commonSettings = Seq(
     parallelExecution in Test := false,
     sourceDirectory := baseDirectory.value,
     target := baseDirectory.value / ".." / ".." / "target" / "modules" / name.value,
-    artifactName := { (_, module, artifact) =>
-      organizationName.value + "-" + artifact.name + "-" + module.revision + "." + artifact.extension
-    },
-    wartremoverErrors in Compile ++= Warts.unsafe.filterNot(Seq(Wart.Var, Wart.Throw).contains(_)),
+    wartremoverErrors in Compile ++= Warts.unsafe.filterNot(Set(Wart.Var, Wart.Throw).contains),
     wartremoverExcluded += baseDirectory.value / "test"
 )
 
 lazy val dependencies = new {
     val versions =
       new {
-        val spire = "0.13.0"
+        val spire = "0.16.1"
         val scopt = "4.0.0-RC2"
         val sttp = "1.5.15"
         val playJson = "2.7.2"
@@ -37,7 +69,7 @@ lazy val dependencies = new {
         val scalaTest = "3.0.5"
       }
 
-    val spire = "org.spire-math" %% "spire" % versions.spire
+    val spire = "org.typelevel" %% "spire" % versions.spire
     val scopt = "com.github.scopt" %% "scopt" % versions.scopt
     val sttp = "com.softwaremill.sttp" %% "core" % versions.sttp
     val playJson = "com.typesafe.play" %% "play-json" % versions.playJson
@@ -56,21 +88,21 @@ lazy val dependencies = new {
     )
   }
 
-lazy val mapAll = "runtime->runtime;test->test;compile->compile"
+val mapAll = "runtime->runtime;test->test;compile->compile"
 
 lazy val core = (project in file("./src/core"))
   .settings(
-    name := "core",
+    name := "chromaprint-core",
     commonSettings,
     libraryDependencies ++= Seq(
-      dependencies.spire,
-      dependencies.scalaTest
-    )
+        dependencies.spire,
+        dependencies.scalaTest
+      )
   ).disablePlugins(org.bytedeco.sbt.javacpp.Plugin, AssemblyPlugin)
 
 lazy val acoustid = (project in file("./src/acoustid"))
   .settings(
-    name := "acoustid",
+    name := "chromaprint-acoustid",
     commonSettings,
     libraryDependencies ++= Seq(
       dependencies.sttp,
@@ -82,7 +114,7 @@ lazy val acoustid = (project in file("./src/acoustid"))
 
 lazy val cli = (project in file("./src/cli"))
   .settings(
-    name := "cli",
+    name := "chromaprint-cli",
     commonSettings,
     libraryDependencies ++= Seq(
       dependencies.scopt
@@ -96,7 +128,7 @@ lazy val cli = (project in file("./src/cli"))
 
 lazy val breeze = (project in file("./src/breeze"))
   .settings(
-    name := "breeze",
+    name := "chromaprint-breeze",
     commonSettings,
     libraryDependencies ++= Seq(
       dependencies.breezeCore,
@@ -111,7 +143,7 @@ lazy val breeze = (project in file("./src/breeze"))
 
 lazy val fftw = (project in file("./src/fftw"))
   .settings(
-    name := "fftw",
+    name := "chromaprint-fftw",
     commonSettings,
     javaCppPresetLibs := Seq(
       "fftw" -> "3.3.7"
@@ -121,81 +153,31 @@ lazy val fftw = (project in file("./src/fftw"))
   .disablePlugins(AssemblyPlugin)
   .dependsOn(core % mapAll)
 
-lazy val dist = (project in file("./src/dist"))
+lazy val root = (project in file("."))
   .settings(
-    name := "dist",
     commonSettings,
+    name := "chromaprint",
+    mainClass := Some("chromaprint.Main"),
+    unmanagedSourceDirectories in Compile ++= Seq(
+      baseDirectory.value / "src" / "dist"
+    ),
     libraryDependencies ++= dependencies.codecs,
-    target := baseDirectory.value / ".." / ".." / "target",
-    unmanagedSourceDirectories in Compile ++= Seq("core", "acoustid", "cli", "breeze")
-      .map(baseDirectory.value / ".." / _ / "main" / "scala"),
-    artifactName := { (_, module, artifact) =>
-      organizationName.value + "-" + module.revision + "." + artifact.extension
-    },
+    target := baseDirectory.value / "target",
     assemblyMergeStrategy in assembly := {
       case PathList("META-INF", "MANIFEST.MF") =>
         MergeStrategy.discard
       case PathList("META-INF", _*) =>
         MergeStrategy.concat
+      case PathList("spire", _*) =>
+        MergeStrategy.first
       case _ =>
         MergeStrategy.deduplicate
     },
-    assemblyJarName in assembly := s"${organizationName.value}-assembly-${version.value}.jar"
+    assemblyShadeRules in assembly ++= Seq(
+      ShadeRule.zap("org.spire-math.**").inAll
+    ),
+    assemblyJarName in assembly := s"${name.value}-assembly-${version.value}.jar"
   )
   .disablePlugins(org.bytedeco.sbt.javacpp.Plugin)
   .aggregate(core, acoustid, cli, breeze)
-  .dependsOn(
-    core % mapAll,
-    acoustid % mapAll,
-    cli % mapAll,
-    breeze % mapAll
-  )
-
-lazy val root = (project in file("."))
-  .settings(
-    name := "root",
-    commonSettings,
-    libraryDependencies ++= dependencies.codecs,
-    unmanagedSourceDirectories in Compile ++= Seq("core", "acoustid", "cli", "breeze", "dist", "fftw")
-      .map(baseDirectory.value / "src" / _ / "main" / "scala"),
-    target := baseDirectory.value / "target" / name.value,
-    mainClass in (Compile, run) := Some("chromaprint.Main")
-  )
-  .disablePlugins(org.bytedeco.sbt.javacpp.Plugin)
-  .aggregate(core, acoustid, cli, breeze, fftw, dist)
-  .dependsOn(
-    core % mapAll,
-    acoustid % mapAll,
-    cli % mapAll,
-    breeze % mapAll,
-    fftw % mapAll,
-    dist % mapAll
-  )
-
-// Uncomment the following for publishing to Sonatype.
-// See https://www.scala-sbt.org/1.x/docs/Using-Sonatype.html for more detail.
-
-// ThisBuild / description := "Some descripiton about your project."
-// ThisBuild / licenses    := List("Apache 2" -> new URL("http://www.apache.org/licenses/LICENSE-2.0.txt"))
-// ThisBuild / homepage    := Some(url("https://github.com/example/project"))
-// ThisBuild / scmInfo := Some(
-//   ScmInfo(
-//     url("https://github.com/your-account/your-project"),
-//     "scm:git@github.com:your-account/your-project.git"
-//   )
-// )
-// ThisBuild / developers := List(
-//   Developer(
-//     id    = "Your identifier",
-//     name  = "Your Name",
-//     email = "your@email",
-//     url   = url("http://your.url")
-//   )
-// )
-// ThisBuild / pomIncludeRepository := { _ => false }
-// ThisBuild / publishTo := {
-//   val nexus = "https://oss.sonatype.org/"
-//   if (isSnapshot.value) Some("snapshots" at nexus + "content/repositories/snapshots")
-//   else Some("releases" at nexus + "service/local/staging/deploy/maven2")
-// }
-// ThisBuild / publishMavenStyle := true
+  .dependsOn(core, acoustid, cli, breeze)
