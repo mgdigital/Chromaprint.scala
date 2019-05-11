@@ -1,0 +1,13 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: mgdigital/chromaprint-base:latest
+    steps:
+      - checkout
+      - run:
+          name: Test
+          command: sbt test
+      - run:
+          name: Package
+          command: sbt package
