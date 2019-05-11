@@ -2,8 +2,6 @@ ThisBuild / organization := "com.github.mgdigital"
 ThisBuild / organizationName := "MGDigital"
 ThisBuild / organizationHomepage := Some(url("https://github.com/mgdigital"))
 
-ThisBuild / version := "0.1.7-SNAPSHOT"
-
 ThisBuild / scmInfo := Some(
   ScmInfo(
     url("https://github.com/mgdigital/Chromaprint.scala"),
@@ -98,7 +96,9 @@ lazy val core = (project in file("./src/core"))
         dependencies.spire,
         dependencies.scalaTest
       )
-  ).disablePlugins(org.bytedeco.sbt.javacpp.Plugin, AssemblyPlugin)
+  )
+  .disablePlugins(org.bytedeco.sbt.javacpp.Plugin, AssemblyPlugin)
+  .enablePlugins(GitVersioning)
 
 lazy val acoustid = (project in file("./src/acoustid"))
   .settings(
@@ -110,6 +110,7 @@ lazy val acoustid = (project in file("./src/acoustid"))
     )
   )
   .disablePlugins(org.bytedeco.sbt.javacpp.Plugin, AssemblyPlugin)
+  .enablePlugins(GitVersioning)
   .dependsOn(core % mapAll)
 
 lazy val cli = (project in file("./src/cli"))
@@ -121,6 +122,7 @@ lazy val cli = (project in file("./src/cli"))
     )
   )
   .disablePlugins(org.bytedeco.sbt.javacpp.Plugin, AssemblyPlugin)
+  .enablePlugins(GitVersioning)
   .dependsOn(
     core % mapAll,
     acoustid % mapAll
@@ -139,6 +141,7 @@ lazy val breeze = (project in file("./src/breeze"))
     )
   )
   .disablePlugins(org.bytedeco.sbt.javacpp.Plugin, AssemblyPlugin)
+  .enablePlugins(GitVersioning)
   .dependsOn(core % mapAll)
 
 lazy val fftw = (project in file("./src/fftw"))
@@ -151,6 +154,7 @@ lazy val fftw = (project in file("./src/fftw"))
     javaCppVersion := "1.4.4"
   )
   .disablePlugins(AssemblyPlugin)
+  .enablePlugins(GitVersioning)
   .dependsOn(core % mapAll)
 
 lazy val root = (project in file("."))
@@ -179,5 +183,6 @@ lazy val root = (project in file("."))
     assemblyJarName in assembly := s"${name.value}-assembly-${version.value}.jar"
   )
   .disablePlugins(org.bytedeco.sbt.javacpp.Plugin)
+  .enablePlugins(GitVersioning)
   .aggregate(core, acoustid, cli, breeze)
   .dependsOn(core, acoustid, cli, breeze)
