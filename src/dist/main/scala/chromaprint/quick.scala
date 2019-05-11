@@ -1,6 +1,8 @@
 package chromaprint
 
-object quick extends fingerprinter {
+object quick {
 
   implicit val fftImpl: FFT = breeze.FFTImplAsync
+
+  object fingerprinter extends chromaprint.fingerprinter
 }
