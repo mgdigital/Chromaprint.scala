@@ -15,7 +15,7 @@ RUN \
     default-jdk \
     ffmpeg \
     libavcodec-extra \
-  && rm -rf /etc/apt/sources.list /tmp/*
+  && apt-get clean
 
 RUN \
   curl -L -o /tmp/sbt-$SBT_VERSION.deb https://dl.bintray.com/sbt/debian/sbt-$SBT_VERSION.deb \
