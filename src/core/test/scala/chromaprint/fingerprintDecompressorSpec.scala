@@ -58,7 +58,7 @@ class fingerprintDecompressorSpec extends AbstractSpec {
     val data: Vector[Byte] = Vector(0, 255, 255, 255).map(_.toByte)
     val result = fingerprintDecompressor(Base64.apply(data))
 
-    result.toOption should equal (None)
+    result.isLeft should equal (true)
   }
 
   it should "decompress a longer fingerprint" in {

@@ -12,7 +12,12 @@ object Base64 {
       .replaceAll("=+$", "")
 
   def unapply(str: String): Option[Vector[Byte]] =
-    decode(str).toOption
+    decode(str) match {
+      case Left(e) =>
+        None
+      case Right(bytes) =>
+        Some(bytes)
+    }
 
   def decode(str: String): Either[EncoderException,Vector[Byte]] =
     try {
