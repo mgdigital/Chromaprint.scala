@@ -1,4 +1,4 @@
-FROM ubuntu:18.04
+FROM ubuntu:18.04 as base
 
 ENV SBT_VERSION 1.2.8
 ENV SCALA_VERSION 2.12
@@ -24,6 +24,10 @@ RUN \
 
 ADD . /chromaprint
 WORKDIR /chromaprint
+
+ENTRYPOINT ["/bin/bash"]
+
+FROM base as packaged
 
 RUN sbt "; test; package; assembly"
 
