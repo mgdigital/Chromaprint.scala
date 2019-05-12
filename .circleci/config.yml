@@ -10,11 +10,15 @@ jobs:
           command: sbt reload clean
       - run:
           name: Test
-          command: sbt coverage test coverageReport
+          command: sbt +test
       - run:
           name: Package
-          command: sbt package
+          command: sbt +package
+      - store_test_results:
+          path: /root/project/target/scala-2.12/test-results
       - codecov/upload
+      - store_artifacts:
+          path: /root/project/target
       - persist_to_workspace:
           root: /root/project
           paths:
