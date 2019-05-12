@@ -43,7 +43,6 @@ lazy val commonSettings = Seq(
     Seq(
       Resolver.mavenCentral,
       Resolver.sonatypeRepo("releases"),
-      Resolver.sonatypeRepo("snapshots")
     ),
   parallelExecution in Test := false,
   sourceDirectory := baseDirectory.value,
