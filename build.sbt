@@ -36,6 +36,8 @@ ThisBuild / publishMavenStyle := true
 
 val makeVersionProperties = taskKey[Seq[File]]("Makes a version.properties file.")
 
+val baseTarget = settingKey[File]("Base target")
+
 lazy val commonSettings = Seq(
   scalaVersion := "2.12.8",
   crossScalaVersions := Seq("2.11.12", "2.12.8"),
@@ -46,6 +48,7 @@ lazy val commonSettings = Seq(
     ),
   parallelExecution in Test := false,
   sourceDirectory := baseDirectory.value,
+  baseTarget := baseDirectory.value / ".." / ".." / "target",
   target := baseTarget.value / "modules" / name.value,
   makeVersionProperties := {
     val propFile = new File((resourceManaged in Compile).value, "version.properties")
@@ -54,6 +57,18 @@ lazy val commonSettings = Seq(
     Seq(propFile)
   },
   resourceGenerators in Compile += makeVersionProperties,
+  testOptions in Test ++= Seq(
+    Tests.Argument(
+      TestFrameworks.ScalaTest,
+      "-oD"
+    ),
+    Tests.Argument(
+      TestFrameworks.ScalaTest,
+      "-u",
+      baseTarget.value + "/scala-" + scalaBinaryVersion.value + "/test-results/scalatest"
+    )
+  ),
+  coverageEnabled := true,
   wartremoverErrors in Compile ++= Warts.unsafe.filterNot(Set(Wart.Var, Wart.Throw).contains),
   wartremoverExcluded += baseDirectory.value / "test"
 )
@@ -173,8 +188,11 @@ lazy val root = (project in file("."))
     unmanagedSourceDirectories in Compile ++= Seq(
       baseDirectory.value / "src" / "dist"
     ),
+    sourceDirectories in Test ++= Seq("acoustid", "breeze", "cli", "core")
+      .map(m => baseDirectory.value / "target" / "modules" / s"chromaprint-$m"),
     libraryDependencies ++= dependencies.codecs,
-    target := baseDirectory.value / "target",
+    baseTarget := baseDirectory.value / "target",
+    target := baseTarget.value,
     assemblyMergeStrategy in assembly := {
       case PathList("META-INF", "MANIFEST.MF") =>
         MergeStrategy.discard
