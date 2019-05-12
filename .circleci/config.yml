@@ -14,8 +14,7 @@ jobs:
       - run:
           name: Package
           command: sbt package
-      - codecov/upload:
-          file: target/scala-2.12/scoverage-data/scoverage.coverage.xml
+      - codecov/upload
       - persist_to_workspace:
           root: /chromaprint
           paths:
