@@ -14,7 +14,7 @@ jobs:
       - run:
           name: Package
           command: sbt package
-      - codecov/publish
+      - codecov/publish:
           file: target/scala-2.12/scoverage-data/scoverage.coverage.xml
       - persist_to_workspace:
           paths:
