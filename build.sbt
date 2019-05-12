@@ -88,6 +88,7 @@ lazy val dependencies = new {
         val javaCpp = javaCppPresets + ".3"
         val javaCppFftw = "3.3.7"
         val scalaTest = "3.0.5"
+        val scalactic = scalaTest
       }
 
     val spire = "org.typelevel" %% "spire" % versions.spire
@@ -96,6 +97,7 @@ lazy val dependencies = new {
     val playJson = "com.typesafe.play" %% "play-json" % versions.playJson
     val breezeCore = "org.scalanlp" %% "breeze" % versions.breeze
     val breezeNatives = "org.scalanlp" %% "breeze-natives" % versions.breeze % Optional
+    val scalactic = "org.scalactic" %% "scalactic" % versions.scalactic
     val scalaTest = "org.scalatest" %% "scalatest" % versions.scalaTest % Test
 
     val jflacCodec = "org.jflac" % "jflac-codec" % versions.jflacCodec % Optional
