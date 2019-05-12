@@ -17,6 +17,7 @@ jobs:
       - codecov/upload:
           file: target/scala-2.12/scoverage-data/scoverage.coverage.xml
       - persist_to_workspace:
+          root: /tmp/workspace
           paths:
             - project/project
             - project/target
