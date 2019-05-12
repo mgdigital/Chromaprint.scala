@@ -1,4 +1,4 @@
-version: 2
+version: 2.1
 jobs:
   build:
     docker:
@@ -6,13 +6,20 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Load
+          command: sbt reload clean
+      - run:
           name: Test
-          command: sbt test
+          command: sbt coverage test coverageReport
       - run:
           name: Package
           command: sbt package
+      - codecov/publish
+          file: target/scala-2.12/scoverage-data/scoverage.coverage.xml
       - persist_to_workspace:
           paths:
             - project/project
             - project/target
             - target
+orbs:
+  codecov: codecov/codecov@1.0.4
