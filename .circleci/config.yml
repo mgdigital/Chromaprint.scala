@@ -11,3 +11,8 @@ jobs:
       - run:
           name: Package
           command: sbt package
+      - persist_to_workspace:
+          paths:
+            - project/project
+            - project/target
+            - target
