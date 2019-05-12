@@ -16,7 +16,7 @@ jobs:
           command: sbt package
       - codecov/upload
       - persist_to_workspace:
-          root: /chromaprint
+          root: /project
           paths:
             - project/project
             - project/target
