@@ -57,6 +57,7 @@ lazy val commonSettings = Seq(
     Seq(propFile)
   },
   resourceGenerators in Compile += makeVersionProperties,
+  logBuffered in Test := false,
   testOptions in Test ++= Seq(
     Tests.Argument(
       TestFrameworks.ScalaTest,
