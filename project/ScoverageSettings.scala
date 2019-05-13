@@ -10,6 +10,6 @@ object ScoverageSettings extends AutoPlugin{
   override def trigger: PluginTrigger = allRequirements
 
   override lazy val projectSettings: Seq[Def.Setting[_]] = Seq(
-    coverageEnabled := (scalaVersion.value == "2.12.8")
+    coverageEnabled in Test := (scalaVersion.value == "2.12.8")
   )
 }
