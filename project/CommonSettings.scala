@@ -21,9 +21,16 @@ object CommonSettings extends AutoPlugin {
       Resolver.mavenCentral,
       Resolver.sonatypeRepo("releases")
     ),
+    libraryDependencies ++= Seq(
+      Dependencies.scalaTest
+    ),
     sourceDirectory := baseDirectory.value,
     baseRoot := baseDirectory.value / ".." / "..",
     baseTarget := baseRoot.value / "target",
-    target := baseTarget.value / "modules" / name.value
+    target := baseTarget.value / "modules" / name.value,
+    scalacOptions ++= Seq(
+      "-language:higherKinds",
+      "-language:implicitConversions"
+    ),
   )
 }

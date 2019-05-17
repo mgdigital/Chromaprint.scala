@@ -30,8 +30,8 @@ lazy val core = (project in file("./src/core"))
   .settings(
     name := "chromaprint-core",
     libraryDependencies ++= Seq(
-        Dependencies.spire,
-        Dependencies.scalaTest
+        Dependencies.fs2,
+        Dependencies.spire
       )
   )
   .disablePlugins(org.bytedeco.sbt.javacpp.Plugin, AssemblyPlugin)

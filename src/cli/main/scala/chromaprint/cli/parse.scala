@@ -1,7 +1,5 @@
 package chromaprint.cli
 
-import java.io.File
-
 import chromaprint.{AudioSource, Presets}
 import chromaprint.acoustid.lookup
 import chromaprint.cli.command.Args
@@ -35,9 +33,6 @@ object parse {
       opt[Int]('r', "rate")
         .text("sample rate")
         .action((x, a) => a.withConfig(_.copy(sampleRate = x))),
-      opt[Boolean]('p', "preload")
-        .text("preload audio into memory before fingerprinting")
-        .action((x, a) => a.withParams(_.copy(preload = x))),
       opt[Boolean]("raw")
         .text("show raw fingerprint")
         .action((x, a) => a.withParams(_.copy(showRaw = x))),

@@ -13,7 +13,6 @@ object command {
     val default: Params =
       Params(
         Config.default,
-        preload = true,
         showCompressed = true,
         showRaw = false,
         showHash = false,
@@ -24,7 +23,6 @@ object command {
   final case class Params
   (
     config: Config,
-    preload: Boolean,
     showCompressed: Boolean,
     showRaw: Boolean,
     showHash: Boolean,
@@ -71,59 +69,24 @@ object command {
     if (sources.isEmpty) {
       Console.err.println("No audio sources were specified!")
     } else {
-      val useSources = if (params.preload) {
-        preloadedSources(sources)
-      } else {
-        sources
-      }
       val (secondsElapsed, results) = timed(() => {
-        val resultFutures = useSources.map { source => resultFuture(params.config, source).map(r => (source.name, r))}
-        Await.result(Future.sequence(resultFutures), atMost = 60.seconds)
+        sources.map { source =>
+          fingerprinter(
+            params.config,
+            source
+          ).unsafeToFuture().map(r => (source.name, r))
+        }.map(Await.result(_, atMost = 30.seconds))
       })
-      Console.out.println(s"Generated ${results.count(_._2.isRight)} fingerprints in ${secondsElapsed}s")
-      results.foreach { t => handleResult(params, t._1, t._2)}
+      Console.out.println(s"Generated ${results.length} fingerprints in ${secondsElapsed}s")
+      results.foreach { t => handleFingerprint(params, t._1, t._2)}
     }
   }
-
-  private def preloadedSources(sources: Seq[AudioSource]): Seq[AudioSource] =
-    sources.foldLeft(Vector.empty[AudioSource]) { (sources, next) =>
-      val preloaded = next match {
-        case s: AudioSystemSource =>
-          Console.out.println(s"Preloading ${next.name}...")
-          val (secondsElapsed, preloaded) = timed(s.preload)
-          Console.out.println(s"Preloaded ${preloaded.name} in ${secondsElapsed}s")
-          preloaded
-        case s =>
-          s
-      }
-      sources :+ preloaded
-    }
-
-  private def resultFuture
-  (config: Config, source: AudioSource)
-  (implicit fftImpl: FFT): Future[Either[AudioSource.AudioSourceException,Fingerprint]] =
-    Future {
-      val name = source.name
-      Console.out.println(s"Fingerprinting $name")
-      val (secondsElapsed, result) = timed(() => fingerprinter(config, source))
-      Console.out.println(s"Done fingerprinting $name in ${secondsElapsed}s")
-      result
-    }
-
-  private def handleResult
-  (params: Params, name: String, result: Either[AudioSource.AudioSourceException,Fingerprint]): Unit =
-    result match {
-      case Left(e) =>
-        Console.err.println(s"Error creating fingerprint for $name: ${e.getMessage}")
-      case Right(fp) =>
-        handleFingerprint(params, name, fp)
-    }
 
   private def handleFingerprint
   (params: Params, name: String, fingerprint: Fingerprint): Unit = {
 
     Console.out.println(s"Fingerprint for $name:")
-    Console.out.println(s"Duration: ${fingerprint.duration}")
+    Console.out.println(s"Duration: ${fingerprint.trackDuration}")
     if (params.showRaw) {
       Console.out.println(s"Fingerprint (raw): ${fingerprint.data}")
     }

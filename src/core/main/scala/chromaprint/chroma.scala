@@ -1,5 +1,6 @@
 package chromaprint
 
+import fs2.Pipe
 import spire.math.UShort
 
 import scala.collection.immutable.SortedMap
@@ -90,7 +91,7 @@ object chroma {
 
   final case class Config(range: Range, interpolate: Boolean)
 
-  def apply(config: Config, frames: Seq[Vector[Double]]): Seq[Vector[Double]] = {
+  def pipe[F[_]](config: Config): Pipe[F,Vector[Double],Vector[Double]] = {
 
     import config._
 
@@ -104,6 +105,7 @@ object chroma {
         range.featureBandRegular(frame, band)
       }
 
-    frames.map(features)
+    _.map(features)
   }
+
 }

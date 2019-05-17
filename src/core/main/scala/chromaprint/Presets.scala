@@ -23,7 +23,7 @@ object Presets {
   val algorithm4: Config =
     Config.default.copy(
       algorithm = 4,
-      silenceThreshold = 50
+      silenceRemover = silenceRemover.Config.default.copy(threshold = 50)
     )
 
   // scalastyle:on magic.number

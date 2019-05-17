@@ -1,5 +1,6 @@
 package chromaprint
 
+import fs2.{Pure,Stream}
 import scala.math.{Pi, sin, sqrt}
 
 abstract class AbstractFFTSpec extends AbstractSpec {
@@ -15,8 +16,11 @@ abstract class AbstractFFTSpec extends AbstractSpec {
 
   val framerParams = framer.Config(frameSize, overlap)
 
-  def audioToFFTFrames(input: Seq[Short]): Vector[Vector[Double]] =
-    fftImpl(framer(framerParams, input)).toVector
+  def audioToFFTFrames(input: Stream[Pure,Short]): Vector[Vector[Double]] =
+    input
+      .through(framer.pipe(framerParams))
+      .through(hammingWindow.pipe(frameSize))
+      .through(fftImpl.pipe).compile.toVector
 
   val inputSize: Int = frameSize + (nFrames - 1) * (frameSize - overlap) // 80
 
@@ -48,7 +52,7 @@ abstract class AbstractFFTSpec extends AbstractSpec {
       0.000551375,
       0.000534304
     )
-    val transformed = audioToFFTFrames(input)
+    val transformed = audioToFFTFrames(Stream(input :_*))
 
     transformed should have length nFrames
     transformed.foreach { frame =>
@@ -82,7 +86,7 @@ abstract class AbstractFFTSpec extends AbstractSpec {
       1.38507e-05,
       0
     )
-    val transformed = audioToFFTFrames(input)
+    val transformed = audioToFFTFrames(Stream(input :_*))
 
     transformed should have length nFrames
     transformed.foreach { frame =>

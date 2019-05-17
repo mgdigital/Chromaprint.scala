@@ -6,7 +6,7 @@ object fingerprintDecompressor {
 
   final class DecompressorException(message: String) extends Exception(message)
 
-  def apply(data: String): Either[DecompressorException,Fingerprint] =
+  def apply(data: String): Either[DecompressorException,(Int, Vector[UInt])] =
     Base64.decode(data) match {
       case Right(bytes) =>
         apply(bytes)
@@ -14,7 +14,7 @@ object fingerprintDecompressor {
         Left(new DecompressorException("Invalid Base64 string: " + e.getMessage))
     }
 
-  def apply(bytes: Vector[Byte]): Either[DecompressorException,Fingerprint] =
+  def apply(bytes: Vector[Byte]): Either[DecompressorException,(Int, Vector[UInt])] =
     if (bytes.length < 5) {
       Left(new DecompressorException("Invalid fingerprint (shorter than 5 bytes)"))
     } else {
@@ -41,9 +41,8 @@ object fingerprintDecompressor {
                 Left(e)
               case Right(exceptionBits) =>
                 Right(
-                  Fingerprint(
+                  (
                     algorithm,
-                    None,
                     unpackBits(combineBits(normalBits, exceptionBits))
                   )
                 )

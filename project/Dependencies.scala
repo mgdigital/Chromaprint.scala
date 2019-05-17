@@ -4,6 +4,7 @@ object Dependencies {
 
   object Versions {
     val spire = "0.16.1"
+    val fs2 = "1.0.4"
     val scopt = "4.0.0-RC2"
     val sttp = "1.5.15"
     val playJson = "2.7.2"
@@ -15,16 +16,15 @@ object Dependencies {
     val javaCpp: String = javaCppPresets + ".3"
     val javaCppFftw = "3.3.7"
     val scalaTest = "3.0.5"
-    val scalactic: String = scalaTest
   }
 
   val spire = "org.typelevel" %% "spire" % Versions.spire
+  val fs2 = "co.fs2" %% "fs2-core" % Versions.fs2
   val scopt = "com.github.scopt" %% "scopt" % Versions.scopt
   val sttp = "com.softwaremill.sttp" %% "core" % Versions.sttp
   val playJson = "com.typesafe.play" %% "play-json" % Versions.playJson
   val breezeCore = "org.scalanlp" %% "breeze" % Versions.breeze
   val breezeNatives = "org.scalanlp" %% "breeze-natives" % Versions.breeze % Optional
-  val scalactic = "org.scalactic" %% "scalactic" % Versions.scalactic
   val scalaTest = "org.scalatest" %% "scalatest" % Versions.scalaTest % Test
 
   val jflacCodec = "org.jflac" % "jflac-codec" % Versions.jflacCodec % Optional

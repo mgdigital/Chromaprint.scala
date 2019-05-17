@@ -6,7 +6,7 @@ import chromaprint.{discard,FFT}
 import org.bytedeco.javacpp.fftw3._
 import org.bytedeco.javacpp.{DoublePointer, Loader, fftw3}
 
-object FFTImpl extends FFT {
+object FFTImpl {
 
   import FFT._
 

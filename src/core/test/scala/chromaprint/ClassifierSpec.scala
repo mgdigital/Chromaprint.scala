@@ -1,5 +1,7 @@
 package chromaprint
 
+import fs2.{Pure, Stream}
+
 class ClassifierSpec extends AbstractSpec {
 
   behavior of "Classifier"
@@ -7,11 +9,12 @@ class ClassifierSpec extends AbstractSpec {
   import Classifier.{Filter, Quantizer}
 
   it should "filter" in {
-    val image = Image(2)
-      .addRow(Vector(0, 1))
-      .addRow(Vector(2, 3))
+    val image = Stream[Pure,Vector[Double]](
+      Vector(0, 1),
+      Vector(2, 3)
+    )
     val filter = Filter(0, 0, 1, 1)
-    val integral = image.integrate
+    val integral = image.through(integralImage.pipe).compile.toVector
 
     filter(integral, 0) should equal (0)
     filter(integral, 1) should be (1.0986123 +- 0.0001)

@@ -10,10 +10,9 @@ object Config {
     val minFreq: Int = 28
     val maxFreq: Int = 3520
     val maxDuration: Int = 120
-    val silenceThreshold: Short = 0
+    val removeSilence: silenceRemover.Config = silenceRemover.Config.default
     val classifiers: Classifier.Config = ClassifierPresets.default
     val interpolate: Boolean = false
-    val captureDuration: Boolean = true
   }
 
   val default = Config(
@@ -24,10 +23,9 @@ object Config {
     Defaults.minFreq,
     Defaults.maxFreq,
     Defaults.maxDuration,
-    Defaults.silenceThreshold,
+    Defaults.removeSilence,
     Defaults.classifiers,
-    Defaults.interpolate,
-    Defaults.captureDuration
+    Defaults.interpolate
   )
 }
 
@@ -40,10 +38,9 @@ final case class Config
   minFreq: Int,
   maxFreq: Int,
   maxDuration: Int,
-  silenceThreshold: Short,
+  silenceRemover: chromaprint.silenceRemover.Config,
   classifiers: Classifier.Config,
-  interpolate: Boolean,
-  captureDuration: Boolean
+  interpolate: Boolean
 ) {
 
   lazy val maxBytes: Int =

@@ -64,7 +64,7 @@ object lookup {
     var url: Uri = config.baseUrl
     config.clientId.foreach { clientId => url = url.param("client", clientId) }
     url.param("meta", params.meta.mkString(" "))
-      .param("duration", params.fingerprint.duration.round.toString)
+      .param("duration", params.fingerprint.trackDuration.toInt.toString)
       .param("fingerprint", params.fingerprint.compressed)
   }
 

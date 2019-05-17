@@ -6,7 +6,7 @@ object MovingAverage {
     new MovingAverage(window, List.empty)
 }
 
-final case class MovingAverage (window: Int, data: List[Short]) {
+final case class MovingAverage (window: Int, data: List[Long]) {
 
   require(window >= 1)
 
@@ -14,15 +14,15 @@ final case class MovingAverage (window: Int, data: List[Short]) {
 
   require(length <= window)
 
-  lazy val sum: Int = data.sum
+  lazy val sum: Long = data.sum
 
-  lazy val average: Int =
+  lazy val average: Long =
     if (length == 0) {
       0
     } else {
       sum / length
     }
 
-  def append(value: Short): MovingAverage =
+  def append(value: Long): MovingAverage =
     copy(data = (value :: data) take window)
 }

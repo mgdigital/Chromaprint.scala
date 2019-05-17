@@ -1,16 +1,13 @@
 package chromaprint
 
+import fs2.Pipe
+
 import scala.math.sqrt
 
 object chromaNormalizer {
 
-  def apply(features: Seq[Vector[Double]]): Seq[Vector[Double]] =
-    features.map(f =>
-      normalizeValues(
-        f,
-        euclidianNorm(f)
-      ).toVector
-    )
+  def pipe[F[_]]: Pipe[F,Vector[Double],Vector[Double]] =
+    _ map normalizeValues
 
   def euclidianNorm(values: Seq[Double]): Double =
     values.foldLeft(0D) {
@@ -24,21 +21,17 @@ object chromaNormalizer {
 
   val defaultThreshold: Double = 0.01
 
-  def normalizeValues
-  (
-    values: Seq[Double],
-    norm: Double
-  ): Seq[Double] =
-    normalizeValues(values, norm, defaultThreshold)
+  def normalizeValues(values: Vector[Double]): Vector[Double] =
+    normalizeValues(values, euclidianNorm(values), defaultThreshold)
 
   def normalizeValues
   (
-    values: Seq[Double],
+    values: Vector[Double],
     norm: Double,
     threshold: Double
-  ): Seq[Double] =
+  ): Vector[Double] =
     if (norm < threshold) {
-      Seq.fill[Double](values.length)(0D)
+      Vector.fill[Double](values.length)(0D)
     } else {
       values.map(_ / norm)
     }

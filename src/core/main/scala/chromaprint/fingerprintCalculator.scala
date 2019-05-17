@@ -1,5 +1,6 @@
 package chromaprint
 
+import fs2.Pipe
 import spire.math.UInt
 
 object fingerprintCalculator {
@@ -12,15 +13,22 @@ object fingerprintCalculator {
       2
     ).map(UInt(_))
 
-  def apply(config: Classifier.Config, integral: Image): Vector[UInt] =
-    (0 until integral.rows - config.maxFilterWidth + 1)
-      .map(subFingerprint(config, integral, _))
-      .toVector
+  def pipe[F[_]](config: Classifier.Config): Pipe[F,Vector[Double],UInt] =
+    _.mapAccumulate[Vector[Vector[Double]],Option[UInt]](Vector.empty[Vector[Double]]){
+      (rows, thisRow) =>
+        val newRows = (rows :+ thisRow) takeRight config.maxFilterSpan
+        val sub = if (newRows.length < config.maxFilterWidth) {
+          None
+        } else {
+          Some(subFingerprint(config, newRows, newRows.length - config.maxFilterWidth))
+        }
+        (newRows, sub)
+    }.map(_._2).unNone
 
   def subFingerprint
   (
     config: Classifier.Config,
-    integral: Image,
+    integral: Vector[Vector[Double]],
     offset: Int
   ): UInt =
     config.classifiers.foldLeft(UInt(0)){
