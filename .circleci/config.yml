@@ -1,0 +1,62 @@
+version: 2.1
+
+executors:
+  chromaprint-base:
+    docker:
+      - image: mgdigital/chromaprint-base:latest
+    working_directory: /root/chromaprint
+
+jobs:
+  compile-test-package:
+    executor: chromaprint-base
+    steps:
+      - checkout
+      - run:
+          name: Compile, test & package
+          command: sbt reload clean +test coverageReport +package
+      - store_test_results:
+          path: /root/chromaprint/target/scala-2.12/test-results
+      - codecov/upload
+      - persist_to_workspace:
+          root: /root
+          paths:
+            - .ivy2
+            - .sbt
+            - chromaprint
+  publish:
+    executor: chromaprint-base
+    steps:
+      - attach_workspace:
+          at: /root
+      - run:
+          name: Publish packages
+          command: sbt +publish
+
+workflows:
+  version: 2
+  compile-test-package-publish:
+    jobs:
+      - compile-test-package:
+          filters:
+            tags:
+              only: /.*/
+      - request-publish:
+          type: approval
+          requires:
+            - compile-test-package
+          filters:
+            tags:
+              only: /^v[0-9]+\.[0-9]+\.[0-9]+$/
+            branches:
+              ignore: /.*/
+      - publish:
+          requires:
+            - request-publish
+          filters:
+            tags:
+              only: /^v[0-9]+\.[0-9]+\.[0-9]+$/
+            branches:
+              ignore: /.*/
+
+orbs:
+  codecov: codecov/codecov@1.0.4

@@ -1,40 +1,24 @@
-FROM ubuntu:18.04
+FROM ubuntu:18.04 as base
 
 ENV SBT_VERSION 1.2.8
 ENV SCALA_VERSION 2.12
-ENV CHROMAPRINT_VERSION 0.1.0-SNAPSHOT
 
-RUN \
-  sed -i 's/# \(.*multiverse$\)/\1/g' /etc/apt/sources.list && \
-  apt-get update && \
-  apt-get -y upgrade && \
-  apt-get install -y \
-    build-essential \
-    software-properties-common \
-    curl \
-    default-jdk \
-    ffmpeg \
-    libavcodec-extra
+ADD ./scripts/install_deps /tmp/install_deps
 
-RUN \
-  curl -L -o sbt-$SBT_VERSION.deb https://dl.bintray.com/sbt/debian/sbt-$SBT_VERSION.deb && \
-  dpkg -i sbt-$SBT_VERSION.deb && \
-  rm sbt-$SBT_VERSION.deb && \
-  apt-get update && \
-  apt-get install -y \
-    sbt
+RUN /tmp/install_deps \
+  && rm /tmp/install_deps
 
-RUN mkdir /chromaprint
+ENTRYPOINT ["/bin/bash"]
+
+FROM base as sources
+
 ADD . /chromaprint
 WORKDIR /chromaprint
 
-RUN sbt package
-RUN sbt assembly
+RUN sbt reload
 
-RUN echo "#!/bin/sh\n\
-set -e\n\
-sh -c \"java -jar /chromaprint/target/scala-$SCALA_VERSION/chromaprint-assembly-$CHROMAPRINT_VERSION.jar \$@\"\n\
-" > /docker-entrypoint.sh && \
-  chmod +x /docker-entrypoint.sh
+FROM sources as packaged
 
-ENTRYPOINT ["/docker-entrypoint.sh"]
+RUN sbt "; test; package; assembly"
+
+ENTRYPOINT ["./scripts/chromaprint"]
