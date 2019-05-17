@@ -2,7 +2,7 @@ package chromaprint
 
 import fs2.Pipe
 
-object chromaFilter {
+object ChromaFilter {
 
   val coefficients: Vector[Double] =
     Vector(
@@ -22,7 +22,7 @@ object chromaFilter {
 
   def pipe[F[_]](coefficients: Vector[Double]): Pipe[F,Vector[Double],Vector[Double]] = {
     var buffer: Vector[Vector[Double]] = Vector.fill[Vector[Double]](bufferLength)(
-      Vector.fill[Double](chroma.numBands)(0)
+      Vector.fill[Double](Chroma.numBands)(0)
     )
     var bufferSize: Int = 1
     var bufferOffset: Int = 0
@@ -32,7 +32,7 @@ object chromaFilter {
       bufferOffset = (bufferOffset + 1) % bufferLength
       if (bufferSize >= coefficients.length) {
         val offset: Int = (bufferOffset + bufferLength - coefficients.length) % bufferLength
-        Some((0 until chroma.numBands).foldLeft(Vector.fill[Double](chroma.numBands)(0)) {
+        Some((0 until Chroma.numBands).foldLeft(Vector.fill[Double](Chroma.numBands)(0)) {
           (r, i) =>
             coefficients.indices.foldLeft(r) {
               (rr, j) =>

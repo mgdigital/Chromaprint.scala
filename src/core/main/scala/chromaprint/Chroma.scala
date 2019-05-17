@@ -6,7 +6,7 @@ import spire.math.UShort
 import scala.collection.immutable.SortedMap
 import scala.math.log
 
-object chroma {
+object Chroma {
 
   val numBands: Int = 12
 

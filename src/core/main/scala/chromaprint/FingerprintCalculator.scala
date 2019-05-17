@@ -3,7 +3,7 @@ package chromaprint
 import fs2.Pipe
 import spire.math.UInt
 
-object fingerprintCalculator {
+object FingerprintCalculator {
 
   val grayCode: Vector[UInt] =
     Vector(

@@ -4,7 +4,7 @@ import fs2.Pipe
 
 import scala.math.sqrt
 
-object chromaNormalizer {
+object ChromaNormalizer {
 
   def pipe[F[_]]: Pipe[F,Vector[Double],Vector[Double]] =
     _ map normalizeValues

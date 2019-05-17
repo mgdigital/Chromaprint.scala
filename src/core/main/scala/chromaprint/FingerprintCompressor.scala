@@ -2,7 +2,7 @@ package chromaprint
 
 import spire.math.UInt
 
-object fingerprintCompressor {
+object FingerprintCompressor {
 
   val maxNormalValue: Int = 7
   val normalBits: Int = 3

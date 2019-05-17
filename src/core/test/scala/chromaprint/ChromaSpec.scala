@@ -2,12 +2,12 @@ package chromaprint
 
 import fs2.{Pure, Stream}
 
-class chromaSpec extends AbstractSpec {
+class ChromaSpec extends AbstractSpec {
 
   behavior of "chroma"
 
-  val range: chroma.Range =
-    chroma.Range(
+  val range: Chroma.Range =
+    Chroma.Range(
       10,
       510,
       256,
@@ -19,7 +19,7 @@ class chromaSpec extends AbstractSpec {
       .updated(113, 1D)
     val features: Vector[Double] =
       Stream[Pure,Vector[Double]](frame)
-          .through(chroma.pipe(chroma.Config(range)))
+          .through(Chroma.pipe(Chroma.Config(range)))
           .compile.toVector.flatten
 
     features should equal (Vector(
@@ -33,7 +33,7 @@ class chromaSpec extends AbstractSpec {
       .updated(112, 1D)
     val features: Vector[Double] =
       Stream[Pure,Vector[Double]](frame)
-        .through(chroma.pipe(chroma.Config(range)))
+        .through(Chroma.pipe(Chroma.Config(range)))
         .compile.toVector.flatten
 
     features should equal (Vector(
@@ -47,7 +47,7 @@ class chromaSpec extends AbstractSpec {
       .updated(64, 1D) // 250 Hz
     val features: Vector[Double] =
       Stream[Pure,Vector[Double]](frame)
-        .through(chroma.pipe(chroma.Config(range)))
+        .through(Chroma.pipe(Chroma.Config(range)))
         .compile.toVector.flatten
 
     features should equal (Vector(
@@ -74,7 +74,7 @@ class chromaSpec extends AbstractSpec {
       )
     val features: Vector[Double] =
       Stream[Pure,Vector[Double]](frame)
-        .through(chroma.pipe(chroma.Config(range, interpolate = true)))
+        .through(Chroma.pipe(Chroma.Config(range, interpolate = true)))
         .compile.toVector.flatten
 
     assertFeaturesTolerance(features, expectedFeatures)
@@ -91,7 +91,7 @@ class chromaSpec extends AbstractSpec {
       )
     val features: Vector[Double] =
       Stream[Pure,Vector[Double]](frame)
-        .through(chroma.pipe(chroma.Config(range, interpolate = true)))
+        .through(Chroma.pipe(Chroma.Config(range, interpolate = true)))
         .compile.toVector.flatten
 
     assertFeaturesTolerance(features, expectedFeatures)
@@ -108,7 +108,7 @@ class chromaSpec extends AbstractSpec {
       )
     val features: Vector[Double] =
       Stream[Pure,Vector[Double]](frame)
-        .through(chroma.pipe(chroma.Config(range, interpolate = true)))
+        .through(Chroma.pipe(Chroma.Config(range, interpolate = true)))
         .compile.toVector.flatten
 
     assertFeaturesTolerance(features, expectedFeatures)

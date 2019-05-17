@@ -2,7 +2,7 @@ package chromaprint
 
 import spire.math.{UInt, UShort}
 
-object fingerprintDecompressor {
+object FingerprintDecompressor {
 
   final class DecompressorException(message: String) extends Exception(message)
 

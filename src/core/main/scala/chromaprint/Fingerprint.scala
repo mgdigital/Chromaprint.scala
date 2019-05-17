@@ -13,10 +13,10 @@ final case class Fingerprint
     data.length
 
   lazy val compressed: String =
-    fingerprintCompressor(algorithm, data)
+    FingerprintCompressor(algorithm, data)
 
   lazy val hash: UInt =
-    simHash(data)
+    SimHash(data)
 
   def append(next: UInt): Fingerprint =
     copy(data = data :+ next)

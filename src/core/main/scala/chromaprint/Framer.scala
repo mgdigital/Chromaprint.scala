@@ -2,7 +2,7 @@ package chromaprint
 
 import fs2.Pipe
 
-object framer {
+object Framer {
 
   final case class Config
   (

@@ -2,7 +2,7 @@ package chromaprint
 
 import fs2.{Pure, Stream}
 
-class fingerprintCalculatorSpec extends AbstractSpec {
+class FingerprintCalculatorSpec extends AbstractSpec {
 
   behavior of "Fingerprint calculator"
 
@@ -17,10 +17,10 @@ class fingerprintCalculatorSpec extends AbstractSpec {
     val integral = Stream[Pure,Vector[Double]](
       Vector(0, 1),
       Vector(2, 3)
-    ).through(integralImage.pipe).compile.toVector
+    ).through(IntegralImage.pipe).compile.toVector
 
-    fingerprintCalculator.subFingerprint(classifierConfig, integral, 0) should equal (fingerprintCalculator.grayCode(0))
-    fingerprintCalculator.subFingerprint(classifierConfig, integral, 1) should equal (fingerprintCalculator.grayCode(2))
+    FingerprintCalculator.subFingerprint(classifierConfig, integral, 0) should equal (FingerprintCalculator.grayCode(0))
+    FingerprintCalculator.subFingerprint(classifierConfig, integral, 1) should equal (FingerprintCalculator.grayCode(2))
   }
 
   it should "calculate a fingerprint" in {
@@ -28,9 +28,9 @@ class fingerprintCalculatorSpec extends AbstractSpec {
       Vector(0, 1),
       Vector(2, 3),
       Vector(4, 5)
-    ).through(integralImage.pipe)
-      .through(fingerprintCalculator.pipe(classifierConfig)).compile.toVector
+    ).through(IntegralImage.pipe)
+      .through(FingerprintCalculator.pipe(classifierConfig)).compile.toVector
 
-    rawFingerprint should equal (Vector(0, 2, 3).map(fingerprintCalculator.grayCode))
+    rawFingerprint should equal (Vector(0, 2, 3).map(FingerprintCalculator.grayCode))
   }
 }

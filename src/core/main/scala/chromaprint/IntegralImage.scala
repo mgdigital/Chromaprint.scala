@@ -2,7 +2,7 @@ package chromaprint
 
 import fs2.{Chunk, Pipe}
 
-object integralImage {
+object IntegralImage {
 
   def pipe[F[_]]: Pipe[F,Vector[Double],Vector[Double]] =
     _.mapAccumulate[Option[Vector[Double]],Vector[Double]](None){

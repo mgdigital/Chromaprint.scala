@@ -32,7 +32,7 @@ object Classifier {
     }
   }
 
-  import integralImage.area
+  import IntegralImage.area
 
   val filter0: FilterType = FilterType(
     (i, x, y, w, h) =>

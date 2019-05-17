@@ -10,7 +10,7 @@ object Config {
     val minFreq: Int = 28
     val maxFreq: Int = 3520
     val maxDuration: Int = 120
-    val removeSilence: silenceRemover.Config = silenceRemover.Config.default
+    val removeSilence: SilenceRemover.Config = SilenceRemover.Config.default
     val classifiers: Classifier.Config = ClassifierPresets.default
     val interpolate: Boolean = false
   }
@@ -38,7 +38,7 @@ final case class Config
   minFreq: Int,
   maxFreq: Int,
   maxDuration: Int,
-  silenceRemover: chromaprint.silenceRemover.Config,
+  silenceRemover: chromaprint.SilenceRemover.Config,
   classifiers: Classifier.Config,
   interpolate: Boolean
 ) {
@@ -47,13 +47,13 @@ final case class Config
     maxDuration * sampleRate
 
   lazy val framerConfig =
-    framer.Config(
+    Framer.Config(
       frameSize,
       overlap
     )
 
   lazy val chromaRange =
-    chroma.Range(
+    Chroma.Range(
       minFreq,
       maxFreq,
       frameSize,
@@ -61,7 +61,7 @@ final case class Config
     )
 
   lazy val chromaConfig =
-    chroma.Config(
+    Chroma.Config(
       chromaRange,
       interpolate
     )

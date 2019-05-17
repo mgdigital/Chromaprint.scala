@@ -4,4 +4,5 @@ package object chromaprint {
     val _: Any = evaluateForSideEffectOnly
     () //Return unit to prevent warning due to discarding value
   }
+
 }

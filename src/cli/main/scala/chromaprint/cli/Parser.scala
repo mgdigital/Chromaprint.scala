@@ -2,9 +2,9 @@ package chromaprint.cli
 
 import chromaprint.{AudioSource, Presets}
 import chromaprint.acoustid.lookup
-import chromaprint.cli.command.Args
+import chromaprint.cli.Command.Args
 
-object parse {
+object Parser {
 
   import scopt._
 

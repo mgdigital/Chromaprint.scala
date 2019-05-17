@@ -2,7 +2,7 @@ package chromaprint
 
 import spire.math.UInt
 
-object simHash {
+object SimHash {
 
   val length: Int = 32
 

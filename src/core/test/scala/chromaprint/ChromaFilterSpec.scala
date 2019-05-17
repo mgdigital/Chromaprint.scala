@@ -2,7 +2,7 @@ package chromaprint
 
 import fs2.{Pure, Stream}
 
-class chromaFilterSpec extends AbstractSpec {
+class ChromaFilterSpec extends AbstractSpec {
 
   behavior of "Chroma filter"
 
@@ -15,7 +15,7 @@ class chromaFilterSpec extends AbstractSpec {
     )
 
     val image: Vector[Vector[Double]] = chunks
-      .through(chromaFilter.pipe(coefficients))
+      .through(ChromaFilter.pipe(coefficients))
       .compile.toVector
 
     image(0)(0) should equal (0.5)
@@ -34,7 +34,7 @@ class chromaFilterSpec extends AbstractSpec {
     )
 
     val image: Vector[Vector[Double]] = chunks
-      .through(chromaFilter.pipe(coefficients))
+      .through(ChromaFilter.pipe(coefficients))
       .compile.toVector
 
     image.length should equal (2)
@@ -53,7 +53,7 @@ class chromaFilterSpec extends AbstractSpec {
     )
 
     val image: Vector[Vector[Double]] = chunks
-      .through(chromaFilter.pipe(coefficients))
+      .through(ChromaFilter.pipe(coefficients))
       .compile.toVector
 
     image.length should equal (2)

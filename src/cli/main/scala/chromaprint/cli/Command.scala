@@ -6,7 +6,7 @@ import chromaprint.acoustid.lookup
 import scala.concurrent.duration._
 import scala.concurrent.{Await, ExecutionContext, Future}
 
-object command {
+object Command {
 
   object Params {
 
@@ -61,7 +61,7 @@ object command {
   }
 
   def apply(args: Vector[String])(implicit fftImpl: FFT): Unit =
-    parse(args).foreach(args => apply(args.params, args.sources))
+    Parser(args).foreach(args => apply(args.params, args.sources))
 
   implicit val executionContext: ExecutionContext = ExecutionContext.global
 
@@ -71,7 +71,7 @@ object command {
     } else {
       val (secondsElapsed, results) = timed(() => {
         sources.map { source =>
-          fingerprinter(
+          Fingerprinter(
             params.config,
             source
           ).unsafeToFuture().map(r => (source.name, r))

@@ -14,12 +14,12 @@ abstract class AbstractFFTSpec extends AbstractSpec {
   val frameSize = 32
   val overlap = 8
 
-  val framerParams = framer.Config(frameSize, overlap)
+  val framerParams = Framer.Config(frameSize, overlap)
 
   def audioToFFTFrames(input: Stream[Pure,Short]): Vector[Vector[Double]] =
     input
-      .through(framer.pipe(framerParams))
-      .through(hammingWindow.pipe(frameSize))
+      .through(Framer.pipe(framerParams))
+      .through(HammingWindow.pipe(frameSize))
       .through(fftImpl.pipe).compile.toVector
 
   val inputSize: Int = frameSize + (nFrames - 1) * (frameSize - overlap) // 80

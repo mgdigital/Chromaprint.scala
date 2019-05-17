@@ -2,7 +2,7 @@ package chromaprint
 
 import spire.math.UInt
 
-class simHashSpec extends AbstractSpec {
+class SimHashSpec extends AbstractSpec {
 
   behavior of "SimHash"
 
@@ -19,13 +19,13 @@ class simHashSpec extends AbstractSpec {
     ).map(UInt(_))
 
   it should "create a hash" in {
-    simHash(data) should equal (UInt(1961926954))
+    SimHash(data) should equal (UInt(1961926954))
   }
 
   it should "create a cropped hash" in {
-    val hash1 = simHash(data)
-    val hash2 = simHash(data.slice(10, 948 - 10))
-    val hash3 = simHash(data.slice(10, 948 - 100))
+    val hash1 = SimHash(data)
+    val hash2 = SimHash(data.slice(10, 948 - 10))
+    val hash3 = SimHash(data.slice(10, 948 - 100))
 
     TestHelper.hammingDistance(hash1, hash2) should be <= 0
     TestHelper.hammingDistance(hash1, hash3) should be <= 1

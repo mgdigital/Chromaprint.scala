@@ -4,7 +4,7 @@ import cats.effect.IO
 import fs2.{Pipe,Stream}
 import spire.math.UInt
 
-trait fingerprinter {
+trait Fingerprinter {
 
   def apply(audioSource: AudioSource)(implicit fftImpl: FFT): IO[Fingerprint] =
     apply(Config.default, audioSource)
@@ -32,16 +32,16 @@ trait fingerprinter {
 
   def pipeRaw[F[_]](config: Config)(implicit fftImpl: FFT): Pipe[F,Short,UInt] =
     _.take(config.maxBytes)
-      .through(silenceRemover.pipe(config.silenceRemover))
-      .through(framer.pipe(config.framerConfig))
-      .through(hammingWindow.pipe(config.frameSize))
+      .through(SilenceRemover.pipe(config.silenceRemover))
+      .through(Framer.pipe(config.framerConfig))
+      .through(HammingWindow.pipe(config.frameSize))
       .through(fftImpl.pipe)
-      .through(chroma.pipe(config.chromaConfig))
-      .through(chromaFilter.pipe)
-      .through(chromaNormalizer.pipe)
-      .through(integralImage.pipe)
-      .through(fingerprintCalculator.pipe(config.classifiers))
+      .through(Chroma.pipe(config.chromaConfig))
+      .through(ChromaFilter.pipe)
+      .through(ChromaNormalizer.pipe)
+      .through(IntegralImage.pipe)
+      .through(FingerprintCalculator.pipe(config.classifiers))
 
 }
 
-object fingerprinter extends fingerprinter
+object Fingerprinter extends Fingerprinter

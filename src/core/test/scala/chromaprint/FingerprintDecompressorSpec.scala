@@ -2,13 +2,13 @@ package chromaprint
 
 import spire.math.UInt
 
-class fingerprintDecompressorSpec extends AbstractSpec {
+class FingerprintDecompressorSpec extends AbstractSpec {
 
   behavior of "fingerprint decompressor"
 
   it should "decompress 1 item 1 bit" in {
     val compressed: Vector[Byte] = Vector(0, 0, 0, 1, 1).map(_.toByte)
-    val Right((algorithm, data)) = fingerprintDecompressor(Base64(compressed))
+    val Right((algorithm, data)) = FingerprintDecompressor(Base64(compressed))
 
     algorithm should equal (0)
     data should equal (Vector(UInt(1)))
@@ -16,7 +16,7 @@ class fingerprintDecompressorSpec extends AbstractSpec {
 
   it should "decompress 1 item 3 bits" in {
     val compressed: Vector[Byte] = Vector(0, 0, 0, 1, 73, 0).map(_.toByte)
-    val Right((algorithm, data)) = fingerprintDecompressor(Base64(compressed))
+    val Right((algorithm, data)) = FingerprintDecompressor(Base64(compressed))
 
     algorithm should equal (0)
     data should equal (Vector(UInt(7)))
@@ -24,7 +24,7 @@ class fingerprintDecompressorSpec extends AbstractSpec {
 
   it should "decompress 1 item 1 bit 1 except" in {
     val compressed: Vector[Byte] = Vector(0, 0, 0, 1, 7, 0).map(_.toByte)
-    val Right((algorithm, data)) = fingerprintDecompressor(Base64(compressed))
+    val Right((algorithm, data)) = FingerprintDecompressor(Base64(compressed))
 
     algorithm should equal (0)
     data should equal (Vector(UInt(1 << 6)))
@@ -32,7 +32,7 @@ class fingerprintDecompressorSpec extends AbstractSpec {
 
   it should "decompress 1 item 1 bit 2 except" in {
     val compressed: Vector[Byte] = Vector(0, 0, 0, 1, 7, 2).map(_.toByte)
-    val Right((algorithm, data)) = fingerprintDecompressor(Base64(compressed))
+    val Right((algorithm, data)) = FingerprintDecompressor(Base64(compressed))
 
     algorithm should equal (0)
     data should equal (Vector(UInt(1 << 8)))
@@ -40,7 +40,7 @@ class fingerprintDecompressorSpec extends AbstractSpec {
 
   it should "decompress 2 items" in {
     val compressed: Vector[Byte] = Vector(0, 0, 0, 2, 65, 0).map(_.toByte)
-    val Right((algorithm, data)) = fingerprintDecompressor(Base64(compressed))
+    val Right((algorithm, data)) = FingerprintDecompressor(Base64(compressed))
 
     algorithm should equal (0)
     data should equal (Vector(1, 0).map(UInt(_)))
@@ -48,7 +48,7 @@ class fingerprintDecompressorSpec extends AbstractSpec {
 
   it should "decompress 2 items no change" in {
     val compressed: Vector[Byte] = Vector(0, 0, 0, 2, 1, 0).map(_.toByte)
-    val Right((algorithm, data)) = fingerprintDecompressor(Base64(compressed))
+    val Right((algorithm, data)) = FingerprintDecompressor(Base64(compressed))
 
     algorithm should equal (0)
     data should equal (Vector(1, 1).map(UInt(_)))
@@ -56,14 +56,14 @@ class fingerprintDecompressorSpec extends AbstractSpec {
 
   it should "fail on invalid" in {
     val compressed: Vector[Byte] = Vector(0, 255, 255, 255).map(_.toByte)
-    val result = fingerprintDecompressor(Base64(compressed))
+    val result = FingerprintDecompressor(Base64(compressed))
 
     result.isLeft should equal (true)
   }
 
   it should "decompress a longer fingerprint" in {
     val strCompressed = "AQAAEwkjrUmSJQpUHflR9mjSJMdZpcO_Imdw9dCO9Clu4_wQPvhCB01w6xAtXNcAp5RASgDBhDSCGGIAcwA"
-    val Right((algorithm, data)) = fingerprintDecompressor(strCompressed)
+    val Right((algorithm, data)) = FingerprintDecompressor(strCompressed)
     val expected: Vector[UInt] =
       Vector(
         -587455133,

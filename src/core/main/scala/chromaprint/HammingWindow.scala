@@ -4,7 +4,7 @@ import fs2.Pipe
 
 import scala.math.{Pi, cos}
 
-object hammingWindow {
+object HammingWindow {
 
   def sized(size: Int): Vector[Double] =
     (0 until size).toVector map (i => 0.54 - 0.46 * cos(i.toDouble * 2D * Pi / (size - 1)))
