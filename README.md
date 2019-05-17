@@ -34,7 +34,7 @@ In your `build.sbt`, add:
 ```scala
 resolvers += Resolver.bintrayRepo("mgdigital", "chromaprint")
 
-libraryDependencies += "com.github.mgdigital" %% "chromaprint" % "v0.2.1"
+libraryDependencies += "com.github.mgdigital" %% "chromaprint" % "0.2.1"
 ```
 
 Then in your Scala application:
