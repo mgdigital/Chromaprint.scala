@@ -1,10 +1,12 @@
 # Chromaprint.scala
 
-An implementation of the [Chromaprint][1]/[AcoustID][2] audio fingerprinting algorithm for the JVM, created originally in C++ by [Lukáš Lalinský][3].
+An implementation of the [Chromaprint][https://github.com/acoustid/chromaprint]/[AcoustID][https://acoustid.org/] audio fingerprinting algorithm for the JVM, created originally in C++ by [Lukáš Lalinský][https://oxygene.sk/].
+
+[![CircleCI](https://circleci.com/gh/mgdigital/Chromaprint.scala/tree/master.svg?style=svg)](https://circleci.com/gh/mgdigital/Chromaprint.scala/tree/master) [![codecov](https://codecov.io/gh/mgdigital/Chromaprint.scala/branch/master/graph/badge.svg)](https://codecov.io/gh/mgdigital/Chromaprint.scala)
 
 ## What does it do?
 
-It creates an [audio fingerprint][4] designed to identify near-identical audio tracks in the [AcoustID][2] and [MusicBrainz][5] databases. This can be used to identify unknown tracks, find duplicates and look up metadata.
+It creates an [audio fingerprint][https://en.wikipedia.org/wiki/Acoustic_fingerprint] designed to identify near-identical audio tracks in the [AcoustID][https://acoustid.org/] and [MusicBrainz][https://musicbrainz.org/] databases. This can be used to identify unknown tracks, find duplicates and look up metadata.
 
 ## How does it work?
 
@@ -12,7 +14,7 @@ The algorithm performs a pipeline of operations on an audio stream to extract it
 
 - The audio is resampled to mono at 11025Hz
 - It is split into a series of short _frames_
-- A [Fast Fourier Transform][6] is performed on each frame to extract components of different frequencies
+- A [Fast Fourier Transform][https://en.wikipedia.org/wiki/Fast_Fourier_transform] is performed on each frame to extract components of different frequencies
 - Audio features such as notes are extracted from each frame
 - An image is created from the series of features
 - A fingerprint is extracted from the image as a long series of numbers
@@ -23,28 +25,31 @@ The algorithm performs a pipeline of operations on an audio stream to extract it
 
 ### Requirements
 
-The [FFmpeg][7] library must be installed, along with codecs for files to be analyzed, the `libavcodec-extra` package on Debian should provide all of these.
+The [FFmpeg][https://ffmpeg.org/] library must be installed, along with codecs for files to be analyzed, the `libavcodec-extra` package on Debian should provide all of these.
 
-### Build and run with SBT
+### [SBT][https://www.scala-sbt.org/download.html]
 
-Install [SBT][8] and run the command line app:
+In your `build.sbt`, add:
 
-```bash
-$ sbt run "/path/to/myaudiofile.mp3"
-[info] Running chromaprint.Main /path/to/myaudiofile.mp3
-Fingerprinting...
-Created fingerprint in 4.177s
-Duration: 296.80008
-Fingerprint (raw): 829534504,829526824,829526808,...
-Fingerprint (compressed): AQADtNQYhYkYnGhw7X....
-Hash: 813035563
+```scala
+resolvers += Resolver.bintrayRepo("mgdigital", "chromaprint")
+
+libraryDependencies += "com.github.mgdigital" %% "chromaprint" % "v0.2.1"
 ```
 
-Build an executable JAR:
+Then in your Scala application:
 
-```bash
-$ sbt assembly
+```scala
+import chromaprint.quick._
+
+val file = new java.io.File("/audio/Pocket Calculator.flac")
+val fingerprint = Fingerprinter(file).unsafeRunSync()
+
+println(fingerprint.compressed)
+// AQADtNQYhYkYnGhw7X...
+
 ```
+Note: The fingerprint is generated using a [FS2 stream][https://github.com/functional-streams-for-scala/fs2], and the `Fingerprinter` returns a type of `IO[Fingerprint]`, which is a `Fingerprint` type wrapped in a [Cats Effect IO][https://typelevel.org/cats-effect/datatypes/io.html] type. Running `ùnsafeRunSync()` on the `IO[Fingerprint]` object is the quickest way to have it return the `Fingerprint`, a different `IO` method may be better suited to your application.
 
 ### Build the Docker image
 
@@ -60,40 +65,23 @@ $ docker run -ti -v $(pwd):/audio/ chromaprint-scala '"/audio/Pocket Calculator.
 
 ## Identify track with AcoustID
 
-Get an [AcoustID][2] client ID and provide the `acoustid-client` option in the command line app to lookup matches in the AcoustID database:
+Get an [AcoustID][https://acoustid.org/] client ID and provide the `acoustid-client` option in the command line app to lookup matches in the AcoustID database:
 
 ```bash
 $ sbt run "/audio/Pocket Calculator.flac" --acoustid-client=MyClientId
 [info] Running chromaprint.Main /audio/Pocket Calculator.flac --acoustid-client=MyClientId
 Fingerprinting...
-Created fingerprint in 4.177s
+Created fingerprint in 1.983s
 Duration: 296.80008
-Fingerprint (raw): 829534504,829526824,829526808,...
 Fingerprint (compressed): AQADtNQYhYkYnGhw7X....
-Hash: 813035563
 AcoustID response received
-Result 1 with score 0.923195:
-867cf1a1-c46a-4ad5-916f-0c5397ff65e5 'Pocket Calculator' by 'Kraftwerk'
+c0c5a16f-64e0-4571-aa29-ba80e6cb7874: Result 1 with score 0.923195:
+867cf1a1-c46a-4ad5-916f-0c5397ff65e5: 'Pocket Calculator' by 'Kraftwerk'
+...
 ```
+See the code for the command line app under `chromaprint.cli` for further examples.
 
-## Using the library in a Scala application
-
-(SBT repository details to be published shortly)
-
-```scala
-import chromaprint.core.fingerprinter
-import java.io.File
-
-val file = new File("/audio/Pocket Calculator.flac")
-val Right(fingerprint) = fingerprinter(file)(fftProvider = chromaprint.breeze.FFT)
-
-println(fingerprint.compressed)
-// AQADtNQYhYkYnGhw7X...
-
-```
-See the code for the command line app under `chromaprint.fpcalc` for further examples.
-
-Note that the fingerprinter requires an implicit for the FFT (Fast Fourier Transform) implementation. Adapters are provided for [Breeze][9] and through [FFTW][10] via [JavaCPP Presets][11]. I have seen intermittent errors in the FFTW adapter so would recommend using Breeze.
+Note that the fingerprinter requires an implicit for the FFT (Fast Fourier Transform) implementation. Adapters are provided for [Breeze][https://github.com/scalanlp/breeze] and through [FFTW][https://github.com/bytedeco/javacpp-presets/tree/master/fftw] via [JavaCPP Presets][https://github.com/bytedeco/javacpp-presets/tree/master/fftw]. I have seen intermittent errors in the FFTW adapter so would recommend using Breeze.
 
 ---
 
@@ -102,17 +90,3 @@ Copyright (c) 2019 Mike Gibson, https://github.com/mgdigital. Original Chromapri
 ---
 
 For Chris.
-
-
-
-[1]: https://github.com/acoustid/chromaprint
-[2]: https://acoustid.org/
-[3]: https://oxygene.sk/
-[4]: https://en.wikipedia.org/wiki/Acoustic_fingerprint
-[5]: https://musicbrainz.org/
-[6]: https://en.wikipedia.org/wiki/Fast_Fourier_transform
-[7]: https://ffmpeg.org/
-[8]: https://www.scala-sbt.org/download.html
-[9]: https://github.com/scalanlp/breeze
-[10]: http://www.fftw.org/
-[11]: https://github.com/bytedeco/javacpp-presets/tree/master/fftw
