@@ -1,6 +1,7 @@
 import sbt._
+import Keys._
 import bintray.BintrayPlugin
-import bintray.BintrayPlugin.autoImport._
+import BintrayPlugin.autoImport._
 
 object BintraySettings extends AutoPlugin {
 
@@ -9,7 +10,8 @@ object BintraySettings extends AutoPlugin {
   override def trigger: PluginTrigger = allRequirements
 
   override lazy val projectSettings: Seq[Def.Setting[_]] = Seq(
-    bintrayRepository := "chromaprint"
+    bintrayRepository := "chromaprint",
+    bintrayVcsUrl := scmInfo.value.map(_.browseUrl.toString)
   )
 
 }
