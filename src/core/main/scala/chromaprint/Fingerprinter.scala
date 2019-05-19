@@ -30,9 +30,13 @@ trait Fingerprinter {
         (nextFp, nextFp)
     }.map(_._2)
 
-  def pipeRaw[F[_]](config: Config)(implicit fftImpl: FFT): Pipe[F,Short,UInt] =
-    _.take(config.maxBytes)
-      .through(SilenceRemover.pipe(config.silenceRemover))
+  def pipeRaw(config: Config)(implicit fftImpl: FFT): Pipe[IO,Short,UInt] =
+    audio => (config.maxBytes match {
+      case maxBytes if maxBytes > 0 =>
+        audio.take(maxBytes)
+      case _ =>
+        audio
+    }).through(SilenceRemover.pipe(config.silenceRemover))
       .through(Framer.pipe(config.framerConfig))
       .through(HammingWindow.pipe(config.frameSize))
       .through(fftImpl.pipe)
