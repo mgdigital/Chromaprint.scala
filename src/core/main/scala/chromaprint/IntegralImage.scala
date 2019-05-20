@@ -1,6 +1,6 @@
 package chromaprint
 
-import fs2.{Chunk, Pipe}
+import fs2.Pipe
 
 object IntegralImage {
 
