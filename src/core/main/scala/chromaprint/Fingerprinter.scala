@@ -1,10 +1,16 @@
 package chromaprint
 
-import cats.effect.IO
-import fs2.{Pipe,Stream}
+import scala.concurrent.ExecutionContext
+
+import fs2.{Pipe, Stream}
 import spire.math.UInt
+import cats.effect._
+import cats.implicits._
 
 trait Fingerprinter {
+
+  implicit val executionContext: ExecutionContext = ExecutionContext.global
+  implicit val cs: ContextShift[IO] = IO.contextShift(scala.concurrent.ExecutionContext.Implicits.global)
 
   def apply(audioSource: AudioSource)(implicit fftImpl: FFT): IO[Fingerprint] =
     apply(Config.default, audioSource)
@@ -23,7 +29,7 @@ trait Fingerprinter {
   def streamRaw(config: Config, audioSource: AudioSource)(implicit fftImpl: FFT): Stream[IO,UInt] =
     audioSource.audioStream(config.sampleRate) through pipeRaw(config)
 
-  def pipeFingerprint[F[_]](algorithm: Int, duration: Float)(implicit fftImpl: FFT): Pipe[F,UInt,Fingerprint] =
+  def pipeFingerprint(algorithm: Int, duration: Float)(implicit fftImpl: FFT): Pipe[IO,UInt,Fingerprint] =
     _.mapAccumulate[Fingerprint,Fingerprint](Fingerprint(algorithm, duration, Vector.empty)) {
       case (fp, el) =>
         val nextFp = fp.append(el)
@@ -36,7 +42,8 @@ trait Fingerprinter {
         audio.take(maxBytes)
       case _ =>
         audio
-    }).through(SilenceRemover.pipe(config.silenceRemover))
+    }).prefetchN(config.maxBytes max config.sampleRate)
+      .through(SilenceRemover.pipe(config.silenceRemover))
       .through(Framer.pipe(config.framerConfig))
       .through(HammingWindow.pipe(config.hammingWindow))
       .through(fftImpl.pipe)
