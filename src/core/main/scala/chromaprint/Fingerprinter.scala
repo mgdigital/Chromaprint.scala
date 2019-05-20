@@ -38,7 +38,7 @@ trait Fingerprinter {
         audio
     }).through(SilenceRemover.pipe(config.silenceRemover))
       .through(Framer.pipe(config.framerConfig))
-      .through(HammingWindow.pipe(config.frameSize))
+      .through(HammingWindow.pipe(config.hammingWindow))
       .through(fftImpl.pipe)
       .through(Chroma.pipe(config.chromaConfig))
       .through(ChromaFilter.pipe)

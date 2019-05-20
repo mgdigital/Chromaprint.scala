@@ -65,4 +65,7 @@ final case class Config
       chromaRange,
       interpolate
     )
+
+  lazy val hammingWindow =
+    HammingWindow.short(frameSize)
 }
