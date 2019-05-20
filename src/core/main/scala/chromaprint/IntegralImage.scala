@@ -27,17 +27,22 @@ object IntegralImage {
     if (x2 < x1 || y2 < y1) {
       0D
     } else {
-      var area: Double = integral(x2)(y2)
-      if (x1 > 0) {
-        area -= integral(x1 - 1)(y2)
-        if (y1 > 0) {
-          area += integral(x1 - 1)(y1 - 1)
-        }
-      }
-      if (y1 > 0) {
-        area -= integral(x2)(y1 - 1)
-      }
-      area
+      integral(x2)(y2) +
+        (if (x1 > 0) {
+          - integral(x1 - 1)(y2) +
+            (if (y1 > 0) {
+              integral(x1 - 1)(y1 - 1)
+            } else {
+              0
+            })
+        } else {
+          0
+        }) +
+        (if (y1 > 0) {
+          - integral(x2)(y1 - 1)
+        } else {
+          0
+        })
     }
 
 }
