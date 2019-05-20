@@ -2,12 +2,16 @@ package chromaprint
 
 import java.io.{BufferedInputStream, File, FileInputStream, InputStream}
 import java.net.{MalformedURLException, URL}
-
 import javax.sound.sampled._
-import cats.effect.IO
+import scala.concurrent.ExecutionContext
+import cats.effect._
+import cats.implicits._
 import fs2.{Chunk, Pipe, Pure, Stream}
 
 object AudioSource {
+
+  implicit val executionContext: ExecutionContext = ExecutionContext.global
+  implicit val cs: ContextShift[IO] = IO.contextShift(scala.concurrent.ExecutionContext.Implicits.global)
 
   val targetSampleSize: Int = 16
   val targetChannels: Int = 1
@@ -43,7 +47,7 @@ object AudioSource {
   def audioInputStreamToByteStream(audioInputStream: IO[AudioInputStream]): Stream[IO,Byte] =
     Stream.bracket{
       audioInputStream
-    }(_ => IO.unit).flatMap{ stream =>
+    }(stream => IO(stream.close())).flatMap{ stream =>
       audioInputStreamToByteStream(IO.pure(stream), defaultChunkSize(stream.getFormat))
     }
 
@@ -108,33 +112,32 @@ object AudioSource {
     new AudioSystemSource {
       def name: String =
         file.getName
-      def audioInputStream: IO[AudioInputStream] =
-        IO {
-          AudioSystem.getAudioInputStream(file)
-        }
+
+      protected def acquireAudioInputStream: IO[AudioInputStream] =
+        IO.shift *> IO(AudioSystem.getAudioInputStream(file))
+
+      protected def acquireRawInputStream: IO[InputStream] =
+        IO.shift *> IO(new BufferedInputStream(new FileInputStream(file)))
+
       override def rawByteStream(chunkSize: Int): Stream[IO,Byte] =
-        Stream.bracket[IO,InputStream](IO{
-          new BufferedInputStream(new FileInputStream(file))
-        })(stream => IO { stream.close() })
-        .flatMap[IO,Option[Stream[Pure,Byte]]](s => {
-          val arr = new Array[Byte](chunkSize)
-          val n = s.read(arr)
-          if (n < 0) {
-            Stream(None)
-          } else {
-            Stream[Pure, Option[Stream[Pure,Byte]]](Some(Stream.chunk(Chunk.array(arr.take(n)))))
-          }
-        }).unNoneTerminate.flatten
+        Stream.bracket[IO,InputStream](acquireRawInputStream)(stream => IO { stream.close() })
+          .flatMap[IO,Option[Stream[Pure,Byte]]](s => {
+            val arr = new Array[Byte](chunkSize)
+            val n = s.read(arr)
+            if (n < 0) {
+              Stream(None)
+            } else {
+              Stream[Pure, Option[Stream[Pure,Byte]]](Some(Stream.chunk(Chunk.array(arr.take(n)))))
+            }
+          }).unNoneTerminate.flatten
     }
 
   implicit def apply(url: URL): AudioSystemSource =
     new AudioSystemSource {
       def name: String =
         url.toString
-      def audioInputStream: IO[AudioInputStream] =
-        IO {
-          AudioSystem.getAudioInputStream(url)
-        }
+      def acquireAudioInputStream: IO[AudioInputStream] =
+        IO.shift *> IO(AudioSystem.getAudioInputStream(url))
     }
 
   def apply(str: String): Either[AudioSource.AudioSourceException,AudioSource] = {
@@ -155,7 +158,7 @@ object AudioSource {
     new AudioSystemSource {
       def name: String =
         toString
-      def audioInputStream: IO[AudioInputStream] =
+      def acquireAudioInputStream: IO[AudioInputStream] =
         stream match {
           case s: AudioInputStream =>
             IO.pure(s)
@@ -196,16 +199,16 @@ trait AudioSystemSource extends AudioSource {
 
   import AudioSource._
 
-  def audioInputStream: IO[AudioInputStream]
+  protected def acquireAudioInputStream: IO[AudioInputStream]
 
   def rawByteStream(chunkSize: Int): Stream[IO,Byte] =
-    audioInputStreamToByteStream(audioInputStream, chunkSize)
+    audioInputStreamToByteStream(acquireAudioInputStream, chunkSize)
 
   def targetFormat(sampleRate: Int): AudioFormat =
     AudioSource.targetFormat(sampleRate)
 
-  def intermediateAudioInputStream(sampleRate: Int): IO[AudioInputStream] =
-    audioInputStream map { stream =>
+  protected def acquireIntermediateAudioInputStream(sampleRate: Int): IO[AudioInputStream] =
+    IO.shift *> acquireAudioInputStream map { stream =>
       if (!AudioSystem.isConversionSupported(targetFormat(sampleRate), stream.getFormat)) {
         if (AudioSystem.isConversionSupported(AudioFormat.Encoding.PCM_SIGNED, stream.getFormat)) {
           AudioSystem.getAudioInputStream(AudioFormat.Encoding.PCM_SIGNED, stream)
@@ -217,8 +220,8 @@ trait AudioSystemSource extends AudioSource {
       }
     }
 
-  def resampledAudioInputStream(sampleRate: Int): IO[AudioInputStream] =
-    intermediateAudioInputStream(sampleRate) map { intermediate =>
+  protected def acquireResampledAudioInputStream(sampleRate: Int): IO[AudioInputStream] =
+    IO.shift *> acquireIntermediateAudioInputStream(sampleRate) map { intermediate =>
       val intermediateFormat: AudioFormat = intermediate.getFormat
       val finalFormat = targetFormat(sampleRate)
       if (intermediateFormat.getChannels != 1 || intermediateFormat.getSampleRate != sampleRate) {
@@ -236,7 +239,7 @@ trait AudioSystemSource extends AudioSource {
     }
 
   def audioByteStream(sampleRate: Int): Stream[IO,Byte] =
-    audioInputStreamToByteStream(resampledAudioInputStream(sampleRate))
+    audioInputStreamToByteStream(acquireResampledAudioInputStream(sampleRate))
 
   def audioStream(sampleRate: Int): Stream[IO,Short] =
     audioByteStream(sampleRate) through pipeBytePairs
