@@ -113,6 +113,11 @@ object AudioSource {
       def name: String =
         file.getName
 
+    def audioFileFormat: IO[AudioFileFormat] =
+      IO {
+        AudioSystem.getAudioFileFormat(file)
+      }
+
       protected def acquireAudioInputStream: IO[AudioInputStream] =
         IO.shift *> IO(AudioSystem.getAudioInputStream(file))
 
@@ -136,6 +141,10 @@ object AudioSource {
     new AudioSystemSource {
       def name: String =
         url.toString
+      def audioFileFormat: IO[AudioFileFormat] =
+        IO {
+          AudioSystem.getAudioFileFormat(url)
+        }
       def acquireAudioInputStream: IO[AudioInputStream] =
         IO.shift *> IO(AudioSystem.getAudioInputStream(url))
     }
@@ -158,6 +167,10 @@ object AudioSource {
     new AudioSystemSource {
       def name: String =
         toString
+      def audioFileFormat: IO[AudioFileFormat] =
+        IO {
+          AudioSystem.getAudioFileFormat(stream)
+        }
       def acquireAudioInputStream: IO[AudioInputStream] =
         stream match {
           case s: AudioInputStream =>
@@ -198,6 +211,14 @@ trait AudioSource {
 trait AudioSystemSource extends AudioSource {
 
   import AudioSource._
+
+  override def duration: IO[Float] = audioFileFormat.map(f =>
+    Option(f.properties().get("duration"))
+      .map(_.toString.toFloat).filter(_ > 0F).map(_ / 1000000)
+      .getOrElse({throw new DurationException("Could not read duration property")})
+  ).handleErrorWith(_ => readHeaderDuration(rawByteStream))
+
+  def audioFileFormat: IO[AudioFileFormat]
 
   protected def acquireAudioInputStream: IO[AudioInputStream]
 
