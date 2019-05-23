@@ -35,7 +35,7 @@ lazy val core = (project in file("./src/core"))
       )
   )
   .disablePlugins(org.bytedeco.sbt.javacpp.Plugin, AssemblyPlugin)
-  .enablePlugins(GitVersioning)
+  .enablePlugins(GitVersioning, CodecsPlugin)
 
 lazy val acoustid = (project in file("./src/acoustid"))
   .settings(

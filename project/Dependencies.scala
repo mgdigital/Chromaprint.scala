@@ -9,6 +9,8 @@ object Dependencies {
     val sttp = "1.5.15"
     val playJson = "2.7.2"
     val jflacCodec = "1.5.2"
+    val mp3Codec = "1.9.5-1"
+    val vorbisCodec = "1.0.3-1"
     val tritonusShare = "0.3.7.4"
     val tritonusAll = "0.3.7.2"
     val breeze = "0.13.2"
@@ -27,8 +29,11 @@ object Dependencies {
   val breezeNatives = "org.scalanlp" %% "breeze-natives" % Versions.breeze % Optional
   val scalaTest = "org.scalatest" %% "scalatest" % Versions.scalaTest % Test
 
-  val jflacCodec = "org.jflac" % "jflac-codec" % Versions.jflacCodec % Optional
-  val tritonusShare = "com.googlecode.soundlibs" % "tritonus-share" % Versions.tritonusShare % Optional
-  val tritonusAll = "com.googlecode.soundlibs" % "tritonus-all" % Versions.tritonusAll % Optional
+  val jflacCodec = "org.jflac" % "jflac-codec" % Versions.jflacCodec
+  val tritonusShare = "com.googlecode.soundlibs" % "tritonus-share" % Versions.tritonusShare
+  val tritonusAll = "com.googlecode.soundlibs" % "tritonus-all" % Versions.tritonusAll
+
+  val mp3Codec = "com.googlecode.soundlibs" % "mp3spi" % Versions.mp3Codec
+  val vorbisCodec = "com.googlecode.soundlibs" % "vorbisspi" % Versions.vorbisCodec
 
 }
