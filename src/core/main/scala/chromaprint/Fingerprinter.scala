@@ -16,7 +16,7 @@ trait Fingerprinter {
     apply(Config.default, audioSource)
 
   def apply(config: Config, audioSource: AudioSource)(implicit fftImpl: FFT): IO[Fingerprint] =
-    streamFingerprint(config, audioSource)
+    IO.shift *> streamFingerprint(config, audioSource)
       .last.compile.toVector.map(_.flatten).map(_(0))
 
   def streamFingerprint(config: Config, audioSource: AudioSource)(implicit fftImpl: FFT): Stream[IO,Fingerprint] =
