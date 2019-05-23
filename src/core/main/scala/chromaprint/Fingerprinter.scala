@@ -46,7 +46,7 @@ trait Fingerprinter {
       .through(SilenceRemover.pipe(config.silenceRemover))
       .through(Framer.pipe(config.framerConfig))
       .through(HammingWindow.pipe(config.hammingWindow))
-      .through(fftImpl.pipe)
+      .through(fftImpl.pipe(config.frameSize))
       .through(Chroma.pipe(config.chromaConfig))
       .through(ChromaFilter.pipe)
       .through(ChromaNormalizer.pipe)

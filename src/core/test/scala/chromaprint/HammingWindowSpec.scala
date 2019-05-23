@@ -1,6 +1,6 @@
 package chromaprint
 
-import fs2.{Pure,Stream}
+import fs2.{Chunk, Pure, Stream}
 
 class HammingWindowSpec extends AbstractSpec {
 
@@ -31,12 +31,14 @@ class HammingWindowSpec extends AbstractSpec {
   }
 
   it should "apply Hamming window" in {
-    val input = Stream[Pure,Seq[Short]]((0 until 10).map(_ => Short.MaxValue))
-    val output = input.through(HammingWindow.pipe(10)).compile.toVector.flatten
+    val input = Stream[Pure,Vector[Short]]((0 until 10).map(_ => Short.MaxValue).toVector)
+    val window = HammingWindow.short(10)
+    val output: Vector[Chunk[Double]] = input.through[Pure,Chunk[Double]](HammingWindow.pipe(window)).compile.toVector
 
-    output should have length 10
+    output should have length 1
+    output(0).toVector should have length 10
     expected.indices.foreach { i =>
-      output(i) should be (expected(i) +- precision)
+      output(0)(i) should be (expected(i) +- precision)
     }
   }
 }
