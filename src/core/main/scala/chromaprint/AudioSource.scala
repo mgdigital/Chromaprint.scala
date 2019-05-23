@@ -183,11 +183,7 @@ trait AudioSystemSource extends AudioSource {
       })
   }).handleErrorWith(_ => {
     acquireAudioInputStream.flatMap(s => IO {
-      val lineInfo = new DataLine.Info(classOf[Clip], s.getFormat, AudioSystem.NOT_SPECIFIED)
-      val mixerInfo = AudioSystem.getMixerInfo.toVector
-        .map(AudioSystem.getMixer)
-        .filter(_.isLineSupported(lineInfo))(0).getMixerInfo
-      val clip = AudioSystem.getClip(mixerInfo)
+      val clip = AudioSystem.getClip()
       clip.open(s)
       val duration: Float = clip.getMicrosecondLength.toFloat
       clip.close()
