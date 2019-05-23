@@ -72,42 +72,6 @@ object AudioSource {
       .unNoneTerminate
       .flatten
 
-  // @TODO: Check if this works for all formats
-  def readHeaderDuration(stream: Stream[IO,Byte]): IO[Float] =
-    stream.drop(18).chunkN(8, allowFewer = false).take(1).compile.toVector.map{
-      case Vector(c) =>
-        val sampleRate = readSampleRate(c(0), c(1), c(2))
-        val numSamples = readTotalNumberOfSamples(c(3), c(4), c(5), c(6), c(7))
-        (numSamples.toDouble / sampleRate).toFloat
-      case _ =>
-        throw new DurationException("Could not extract duration from headers")
-    }
-
-  def readSampleRate(b1: Byte, b2: Byte, b3: Byte): Long =
-    ((b1.toLong & 0xff) << 12) +
-      ((b2.toLong & 0xff) << 4) +
-      (((b3.toLong & 0xff) & 0xF0) >>> 4)
-
-  def readTotalNumberOfSamples(b1: Byte, b2: Byte, b3: Byte, b4: Byte, b5: Byte): Long =
-    (b5.toLong & 0xff) +
-      ((b4.toLong & 0xff) << 8) +
-      ((b3.toLong & 0xff) << 16) +
-      ((b2.toLong & 0xff) << 24) +
-      (((b1.toLong & 0xff) & 0x0f) << 32)
-
-  def estimateAudioInputStreamDuration(audioInputStream: AudioInputStream): Option[Float] =
-    audioInputStream.getFrameLength match {
-      case frameLength if frameLength > 0 =>
-        audioInputStream.getFormat.getSampleRate match {
-          case sourceSampleRate if sourceSampleRate > 0 =>
-            Some((frameLength.toDouble / sourceSampleRate / 2).toFloat)
-          case _ =>
-            None
-        }
-      case _ =>
-        None
-    }
-
   implicit def apply(file: File): AudioSystemSource =
     new AudioSystemSource {
       def name: String =
@@ -191,8 +155,6 @@ object AudioSource {
 
 trait AudioSource {
 
-  import AudioSource._
-
   def name: String
 
   val defaultRawChunkSize: Int = 32
@@ -200,10 +162,9 @@ trait AudioSource {
   def rawByteStream: Stream[IO,Byte] =
     rawByteStream(defaultRawChunkSize)
 
-  def rawByteStream(chunkSize: Int): Stream[IO,Byte]
+  def duration: IO[Float]
 
-  def duration: IO[Float] =
-    readHeaderDuration(rawByteStream)
+  def rawByteStream(chunkSize: Int): Stream[IO,Byte]
 
   def audioStream(sampleRate: Int): Stream[IO,Short]
 }
@@ -212,11 +173,27 @@ trait AudioSystemSource extends AudioSource {
 
   import AudioSource._
 
-  override def duration: IO[Float] = audioFileFormat.map(f =>
-    Option(f.properties().get("duration"))
-      .map(_.toString.toFloat).filter(_ > 0F).map(_ / 1000000)
-      .getOrElse({throw new DurationException("Could not read duration property")})
-  ).handleErrorWith(_ => readHeaderDuration(rawByteStream))
+  override def duration: IO[Float] = audioFileFormat.flatMap(f => IO {
+    Option(f.properties())
+      .map(_.get("duration"))
+      .map(_.toString.toFloat)
+      .filter(_ > 0F)
+      .getOrElse({
+        throw new DurationException("Could not read duration property")
+      })
+  }).handleErrorWith(_ => {
+    acquireAudioInputStream.flatMap(s => IO {
+      val lineInfo = new DataLine.Info(classOf[Clip], s.getFormat, AudioSystem.NOT_SPECIFIED)
+      val mixerInfo = AudioSystem.getMixerInfo.toVector
+        .map(AudioSystem.getMixer)
+        .filter(_.isLineSupported(lineInfo))(0).getMixerInfo
+      val clip = AudioSystem.getClip(mixerInfo)
+      clip.open(s)
+      val duration: Float = clip.getMicrosecondLength.toFloat
+      clip.close()
+      duration
+    })
+  }).map(_ / 1000000)
 
   def audioFileFormat: IO[AudioFileFormat]
 
