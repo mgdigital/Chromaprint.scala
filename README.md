@@ -34,7 +34,7 @@ In your `build.sbt`, add:
 ```scala
 resolvers += Resolver.bintrayRepo("mgdigital", "chromaprint")
 
-libraryDependencies += "com.github.mgdigital" %% "chromaprint" % "0.2.1"
+libraryDependencies += "com.github.mgdigital" %% "chromaprint" % "0.2.2"
 ```
 
 Then in your Scala application:
@@ -82,6 +82,10 @@ c0c5a16f-64e0-4571-aa29-ba80e6cb7874: Result 1 with score 0.923195:
 See the code for the command line app under `chromaprint.cli` for further examples.
 
 Note that the fingerprinter requires an implicit for the FFT (Fast Fourier Transform) implementation. Adapters are provided for [Breeze](https://github.com/scalanlp/breeze) and through [FFTW](https://github.com/bytedeco/javacpp-presets/tree/master/fftw) via [JavaCPP Presets](https://github.com/bytedeco/javacpp-presets/tree/master/fftw). I have seen intermittent errors in the FFTW adapter so would recommend using Breeze.
+
+## Performance
+
+Performance was never going to be as good as the C++ library, which can calculate a fingerprint almost instantly - but it does need to be fast enough to be conveniently usable. On my hardware I can generate a first fingerprint in around 2.3 seconds from a standing start, with subsequent fingerprints generated in around 0.9 seconds (assuming audio files which need transcoding to PCM and resampling). Improving this further will be a target for future versions.
 
 ---
 
