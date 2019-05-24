@@ -88,17 +88,6 @@ object AudioSource {
       protected def acquireRawInputStream: IO[InputStream] =
         IO.shift *> IO(new BufferedInputStream(new FileInputStream(file)))
 
-      override def rawByteStream(chunkSize: Int): Stream[IO,Byte] =
-        Stream.bracket[IO,InputStream](acquireRawInputStream)(stream => IO { stream.close() })
-          .flatMap[IO,Option[Stream[Pure,Byte]]](s => {
-            val arr = new Array[Byte](chunkSize)
-            val n = s.read(arr)
-            if (n < 0) {
-              Stream(None)
-            } else {
-              Stream[Pure, Option[Stream[Pure,Byte]]](Some(Stream.chunk(Chunk.array(arr.take(n)))))
-            }
-          }).unNoneTerminate.flatten
     }
 
   implicit def apply(url: URL): AudioSystemSource =
@@ -159,12 +148,7 @@ trait AudioSource {
 
   val defaultRawChunkSize: Int = 32
 
-  def rawByteStream: Stream[IO,Byte] =
-    rawByteStream(defaultRawChunkSize)
-
   def duration: IO[Float]
-
-  def rawByteStream(chunkSize: Int): Stream[IO,Byte]
 
   def audioStream(sampleRate: Int): Stream[IO,Short]
 }
@@ -187,9 +171,6 @@ trait AudioSystemSource extends AudioSource {
   val audioFileFormat: IO[AudioFileFormat]
 
   protected def acquireAudioInputStream: IO[AudioInputStream]
-
-  def rawByteStream(chunkSize: Int): Stream[IO,Byte] =
-    audioInputStreamToByteStream(acquireAudioInputStream, chunkSize)
 
   def targetFormat(sampleRate: Int): AudioFormat =
     AudioSource.targetFormat(sampleRate)
