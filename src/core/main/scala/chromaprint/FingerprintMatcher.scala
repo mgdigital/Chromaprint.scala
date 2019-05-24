@@ -191,7 +191,7 @@ object FingerprintMatcher {
         var offset2: Int = if (offsetDiff < 0) - offsetDiff else 0
         val size: Int = (fp1.length - offset1) min (fp2.length - offset2)
         val bitCounts: IndexedSeq[Float] = (0 until size).map{ _ =>
-          val c: Float = HammingDistance(fp1(offset1), fp2(offset2)) + (random() * (0.001F / randMax)).toFloat
+          val c: Float = HammingDistance(fp1(offset1), fp2(offset2)) + (random * (0.001D / randMax)).toFloat
           offset1 += 1
           offset2 += 1
           c
