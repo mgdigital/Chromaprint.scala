@@ -30,7 +30,7 @@ object SilenceRemover {
   def pipe[F[_]](config: SilenceRemover.Config): Pipe[F,Short,Short] =
     _.mapAccumulate[Option[MovingAverage],Option[Short]](Some(MovingAverage(config.window))){
       case (opt, b) =>
-        opt map (_.append(b.toLong.abs)) filter(_.average < config.threshold) match {
+        opt map (_.append(b.toLong.abs)) filter(_.value < config.threshold) match {
           case Some(ma) =>
             (Some(ma), None)
           case _ =>
