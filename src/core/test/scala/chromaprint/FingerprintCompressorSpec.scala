@@ -46,9 +46,9 @@ class FingerprintCompressorSpec extends AbstractSpec {
     actual should equal (expected)
   }
 
-//  it should "compress a fingerprint from fpcalc" in {
-//    fingerprintCompressor(2, TestHelper.fpcalcRawData) should equal (TestHelper.fpcalcBody)
-//  }
+  it should "compress a fingerprint from fpcalc" in {
+    FingerprintCompressor(2, TestHelper.fpcalcRawData) should equal (TestHelper.fpcalcBody)
+  }
 
   import FingerprintCompressor.BitStringWriter
 

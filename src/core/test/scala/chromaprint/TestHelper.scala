@@ -19,7 +19,7 @@ object TestHelper {
   }
 
   def fpcalcOutToBody(output: String): Option[String] =
-    output.split('\n').find(_.startsWith("FINGERPRINT=")).map(_.drop(12))
+    output.split('\n').find(_.startsWith("FINGERPRINT=")).map(_.drop(12).trim)
 
   lazy val fpcalcOut: String =
     Source.fromURL(getClass.getResource("/fpcalc.out")).mkString
