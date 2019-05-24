@@ -50,6 +50,8 @@ object Parser {
         .action((x, a) => a.withParams(_.copy(
           acoustid = a.params.acoustid.orElse(Some(lookup.Config.default)).map(_.withClientId(x))
         ))),
+      opt[Int]("repetitions")
+          .action((x, a) => a.withParams(_.copy(repetitions = x))),
       arg[String]("<source>...")
         .unbounded()
         .action((x, a) => {

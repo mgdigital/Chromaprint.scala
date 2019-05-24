@@ -13,7 +13,7 @@ jobs:
       - checkout
       - run:
           name: Compile, test & package
-          command: sbt reload clean +test coverageReport +package
+          command: sbt reload clean coverage +test coverageReport +package
       - store_test_results:
           path: /root/chromaprint/target/scala-2.12/test-results
       - codecov/upload

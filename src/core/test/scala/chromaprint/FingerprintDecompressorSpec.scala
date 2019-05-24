@@ -91,7 +91,7 @@ class FingerprintDecompressorSpec extends AbstractSpec {
     data should equal (expected)
   }
 
-//  it should "decompress a fingerprint from fpcalc" in {
-//    fingerprintDecompressor(TestHelper.fpcalcBody).right.get.data should equal (TestHelper.fpcalcRawData)
-//  }
+  it should "decompress a fingerprint from fpcalc" in {
+    FingerprintDecompressor(TestHelper.fpcalcBody).right.get._2 should equal (TestHelper.fpcalcRawData)
+  }
 }

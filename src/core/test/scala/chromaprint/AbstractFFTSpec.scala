@@ -19,8 +19,9 @@ abstract class AbstractFFTSpec extends AbstractSpec {
   def audioToFFTFrames(input: Stream[Pure,Short]): Vector[Vector[Double]] =
     input
       .through(Framer.pipe(framerParams))
-      .through(HammingWindow.pipe(frameSize))
-      .through(fftImpl.pipe).compile.toVector
+      .through(HammingWindow.pipe(HammingWindow.short(frameSize)))
+      .through(fftImpl.pipe(frameSize)).compile.toVector
+      .unsafeRunSync()
 
   val inputSize: Int = frameSize + (nFrames - 1) * (frameSize - overlap) // 80
 

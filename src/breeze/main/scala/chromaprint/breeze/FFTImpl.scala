@@ -1,19 +1,29 @@
 package chromaprint.breeze
 
 import breeze.linalg.DenseVector
+import breeze.math.Complex
 import breeze.signal.fourierTr
-import chromaprint.FFT
+import chromaprint.FFTParEval
+import fs2.Chunk
 
-object FFTImpl extends FFT {
+object FFTImpl extends FFTParEval {
 
-  import FFT._
+  type TFrame = DenseVector[Complex]
+  type TComplex = Complex
 
-  def computeFrame(frame: Vector[Double]): Vector[Complex] =
+  def computeFrame(frame: Chunk[Double]): TFrame =
     fourierTr(
       DenseVector(
         frame.toArray
       )
-    ).toScalaVector
-      .map(c => Complex(c.real, c.imag))
+    )
 
+  def frameIndex(frame: TFrame, length: Int, i: Int): TComplex =
+    frame(i)
+
+  def complexToReal(complex: TComplex): Double =
+    complex.real
+
+  def complexToImag(complex: TComplex): Double =
+    complex.imag
 }

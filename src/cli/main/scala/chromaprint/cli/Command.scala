@@ -4,7 +4,7 @@ import chromaprint._
 import chromaprint.acoustid.lookup
 
 import scala.concurrent.duration._
-import scala.concurrent.{Await, ExecutionContext, Future}
+import scala.concurrent.{Await, ExecutionContext}
 
 object Command {
 
@@ -16,7 +16,8 @@ object Command {
         showCompressed = true,
         showRaw = false,
         showHash = false,
-        None
+        None,
+        1
       )
   }
 
@@ -26,7 +27,8 @@ object Command {
     showCompressed: Boolean,
     showRaw: Boolean,
     showHash: Boolean,
-    acoustid: Option[lookup.Config]
+    acoustid: Option[lookup.Config],
+    repetitions: Int
   )
 
   object Args {
@@ -69,16 +71,22 @@ object Command {
     if (sources.isEmpty) {
       Console.err.println("No audio sources were specified!")
     } else {
-      val (secondsElapsed, results) = timed(() => {
-        sources.map { source =>
-          Fingerprinter(
-            params.config,
-            source
-          ).unsafeToFuture().map(r => (source.name, r))
-        }.map(Await.result(_, atMost = 30.seconds))
-      })
-      Console.out.println(s"Generated ${results.length} fingerprints in ${secondsElapsed}s")
-      results.foreach { t => handleFingerprint(params, t._1, t._2)}
+      val timings = (0 until params.repetitions).map{ _ =>
+        val (secondsElapsed, results) = timed(() => {
+          sources.map { source =>
+            Fingerprinter(
+              params.config,
+              source
+            ).unsafeToFuture().map(r => (source.name, r))
+          }.map(Await.result(_, atMost = 300.seconds))
+        })
+        Console.out.println(s"Generated ${results.length} fingerprints in ${secondsElapsed}s")
+        results.foreach { t => handleFingerprint(params, t._1, t._2)}
+        secondsElapsed
+      }
+      if (timings.length > 1) {
+        Console.out.println(s"Average generation time: ${timings.sum / timings.length}")
+      }
     }
   }
 

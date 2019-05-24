@@ -1,56 +1,50 @@
 package chromaprint.fftw
 
-import java.util.concurrent.locks.{Lock, ReentrantLock}
-
-import chromaprint.{discard,FFT}
+import cats.effect.IO
+import chromaprint.{FFTAbstract, discard}
+import fs2.{Chunk, Pipe, Stream}
 import org.bytedeco.javacpp.fftw3._
 import org.bytedeco.javacpp.{DoublePointer, Loader, fftw3}
 
-object FFTImpl {
+object FFTImpl extends FFTAbstract {
 
-  import FFT._
+  type TFrame = Array[Double]
+  type TComplex = (Double, Double)
 
-  discard(Loader.load(classOf[fftw3]))
-
-  private val lock: Lock = new ReentrantLock()
-
-  def computeFrames(input: Seq[Vector[Double]]): Seq[Vector[Complex]] =
-    try {
-      lock.lock()
-      doComputeFrames(input.toVector)
-    } finally {
-      fftw_cleanup()
-      lock.unlock()
-    }
-
-  private def doComputeFrames(input: Seq[Vector[Double]]): Seq[Vector[Complex]] = {
-
-    val frameLength = input.headOption.map(_.length).getOrElse(0)
-
-    val signal = new DoublePointer(frameLength * 2)
-    val output = new DoublePointer(frameLength * 2)
-
-    val plan = fftw_plan_r2r_1d(frameLength, signal, output, FFTW_FORWARD, FFTW_ESTIMATE.toInt)
-
-    input.foldLeft(Vector.empty[Vector[Complex]]){ (fftFrames, frame) =>
-
-      discard(signal.put(frame.toArray, 0, frameLength))
-
-      fftw_execute(plan)
-
-      val resultArray = new Array[Double](frameLength * 2)
-
-      discard(output.get(resultArray))
-
-      val result = resultArray.toVector
-
-      fftFrames :+ (0 until frameLength).map { i =>
-        Complex(
-          result(i),
-          result(frameLength - i)
-        )
-      }.toVector
-    }
+  final class Context(val frameLength: Int) {
+    discard(Loader.load(classOf[fftw3]))
+    val signal: DoublePointer = new DoublePointer(frameLength * 2)
+    val output: DoublePointer = new DoublePointer(frameLength * 2)
+    val plan: fftw3.fftw_plan = fftw_plan_r2r_1d(frameLength, signal, output, FFTW_FORWARD, FFTW_ESTIMATE.toInt)
   }
+
+  def pipe(frameLength: Int): Pipe[IO, Chunk[Double], Vector[Double]] =
+    input =>
+      Stream.bracket(IO {
+        new Context(frameLength)
+      })(
+        ctx => IO {
+          fftw_destroy_plan(ctx.plan)
+        }
+      ).map(pipeCtx(_)(input)).flatten
+
+  private def pipeCtx(ctx: Context): Pipe[IO,Chunk[Double],Vector[Double]] =
+    _.map{ inputFrame: Chunk[Double] =>
+      val plan = ctx.plan
+      discard(ctx.signal.put(inputFrame.toArray, 0, ctx.frameLength))
+      fftw_execute(plan)
+      val resultArray = new Array[Double](ctx.frameLength * 2)
+      discard(ctx.output.get(resultArray))
+      resultArray
+    }.map(transformFrame(_, ctx.frameLength))
+
+  def frameIndex(frame: TFrame, length: Int, i: Int): TComplex =
+    (frame(i), frame(length - i))
+
+  def complexToReal(complex: TComplex): Double =
+    complex._1
+
+  def complexToImag(complex: TComplex): Double =
+    complex._2
 
 }

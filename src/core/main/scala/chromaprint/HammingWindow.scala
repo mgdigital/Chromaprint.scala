@@ -1,6 +1,6 @@
 package chromaprint
 
-import fs2.Pipe
+import fs2.{Chunk, Pipe}
 
 import scala.math.{Pi, cos}
 
@@ -15,9 +15,6 @@ object HammingWindow {
   def short(size: Int): Vector[Double] =
     scaled(size, 1D / Short.MaxValue)
 
-  def pipe[F[_]](frameSize: Int): Pipe[F,Seq[Short],Vector[Double]] =
-    pipe(short(frameSize))
-
-  def pipe[F[_]](window: Vector[Double]): Pipe[F,Seq[Short],Vector[Double]] =
-    _ map (_.zip(window) map (e => e._1.toDouble * e._2)) map (_.toVector)
+  def pipe[F[_]](window: Vector[Double]): Pipe[F,Vector[Short],Chunk[Double]] =
+    _.map(f => Chunk.indexedSeq[Double](f.indices.map(i => f(i).toDouble * window(i))))
 }

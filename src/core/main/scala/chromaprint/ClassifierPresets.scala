@@ -8,7 +8,7 @@ object ClassifierPresets {
 
   // Used for http://oxygene.sk/lukas/2010/07/introducing-chromaprint/
   // Trained on a randomly selected test data
-  val preset0: Classifier.Config =
+  lazy val preset0: Classifier.Config =
     Classifier.Config(
       Vector(
         Classifier(Filter(0, 0, 3, 15), Quantizer(2.10543, 2.45354, 2.69414)),
@@ -31,7 +31,7 @@ object ClassifierPresets {
     )
 
   // Trained on 60k pairs based on eMusic samples (mp3)
-  val preset1: Classifier.Config =
+  lazy val preset1: Classifier.Config =
     Classifier.Config(
       Vector(
         Classifier(Filter(0, 4, 3, 15), Quantizer(1.98215, 2.35817, 2.63523)),
@@ -54,7 +54,7 @@ object ClassifierPresets {
     )
 
   // Trained on 60k pairs based on eMusic samples with interpolation enabled (mp3)
-  val preset2: Classifier.Config =
+  lazy val preset2: Classifier.Config =
     Classifier.Config(
       Vector(
         Classifier(Filter(0, 4, 3, 15), Quantizer(1.98215, 2.35817, 2.63523)),
@@ -78,7 +78,7 @@ object ClassifierPresets {
 
   // scalastyle:on magic.number
 
-  val presets: Vector[Classifier.Config] =
+  lazy val presets: Vector[Classifier.Config] =
     Vector(
       preset0,
       preset1,
@@ -88,6 +88,6 @@ object ClassifierPresets {
   def apply(i: Int): Classifier.Config =
     presets(i)
 
-  def default: Classifier.Config =
+  lazy val default: Classifier.Config =
     preset1
 }
