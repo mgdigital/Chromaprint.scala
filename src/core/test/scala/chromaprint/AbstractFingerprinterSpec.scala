@@ -8,7 +8,7 @@ abstract class AbstractFingerprinterSpec extends AbstractSpec {
 
   it should "Generate a fingerprint" in {
     val source = TestHelper.audioSource("wav")
-    val fingerprint = Fingerprinter(source)(fftImpl).unsafeRunSync()
+    val fingerprint = Fingerprinter(Presets.default, source)(fftImpl).unsafeRunSync()
     val expectedRaw = TestHelper.fpcalcRawData
     val expectedCompressed = TestHelper.fpcalcBody
 
