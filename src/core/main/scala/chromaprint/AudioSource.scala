@@ -77,7 +77,7 @@ object AudioSource {
       def name: String =
         file.getName
 
-    def audioFileFormat: IO[AudioFileFormat] =
+    val audioFileFormat: IO[AudioFileFormat] =
       IO {
         AudioSystem.getAudioFileFormat(file)
       }
@@ -105,7 +105,7 @@ object AudioSource {
     new AudioSystemSource {
       def name: String =
         url.toString
-      def audioFileFormat: IO[AudioFileFormat] =
+      val audioFileFormat: IO[AudioFileFormat] =
         IO {
           AudioSystem.getAudioFileFormat(url)
         }
@@ -131,7 +131,7 @@ object AudioSource {
     new AudioSystemSource {
       def name: String =
         toString
-      def audioFileFormat: IO[AudioFileFormat] =
+      val audioFileFormat: IO[AudioFileFormat] =
         IO {
           AudioSystem.getAudioFileFormat(stream)
         }
@@ -173,25 +173,18 @@ trait AudioSystemSource extends AudioSource {
 
   import AudioSource._
 
-  override def duration: IO[Float] = audioFileFormat.flatMap(f => IO {
-    Option(f.properties())
+  override def duration: IO[Float] = audioFileFormat.flatMap(fileFormat => IO {
+    Option(fileFormat.properties())
       .map(_.get("duration"))
       .map(_.toString.toFloat)
       .filter(_ > 0F)
+      .map(_ / 1000000)
       .getOrElse({
-        throw new DurationException("Could not read duration property")
+        fileFormat.getFrameLength.toFloat / fileFormat.getFormat.getSampleRate
       })
-  }).handleErrorWith(_ => {
-    acquireAudioInputStream.flatMap(s => IO {
-      val clip = AudioSystem.getClip()
-      clip.open(s)
-      val duration: Float = clip.getMicrosecondLength.toFloat
-      clip.close()
-      duration
-    })
-  }).map(_ / 1000000)
+  })
 
-  def audioFileFormat: IO[AudioFileFormat]
+  val audioFileFormat: IO[AudioFileFormat]
 
   protected def acquireAudioInputStream: IO[AudioInputStream]
 
