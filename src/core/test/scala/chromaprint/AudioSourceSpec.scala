@@ -1,24 +1,17 @@
 package chromaprint
 
-import java.io.File
-
 class AudioSourceSpec extends AbstractSpec {
 
   behavior of "Audio source"
 
-  def audioSource(extension: String): AudioSource =
-    AudioSource(
-      new File(getClass.getResource(s"/kickinmule.$extension").getFile)
-    )
-
   def readAudioDuration(extension: String): Unit = {
-    val source = audioSource(extension)
+    val source = TestHelper.audioSource(extension)
     val duration = source.duration.unsafeRunSync()
     duration should be (3.7F +- 0.1F)
   }
 
   def readAudioStream(extension: String): Unit = {
-    val source = audioSource(extension)
+    val source = TestHelper.audioSource(extension)
     val audio = source.audioStream(Config.Defaults.sampleRate).take(10).compile.toVector.unsafeRunSync()
     audio should have length 10
   }

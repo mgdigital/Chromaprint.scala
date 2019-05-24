@@ -1,8 +1,9 @@
 package chromaprint
 
-import spire.math.UInt
-
+import java.io.File
 import scala.io.Source
+
+import spire.math.UInt
 
 object TestHelper {
 
@@ -35,4 +36,9 @@ object TestHelper {
 
   lazy val fpcalcRawData: Vector[UInt] =
     fpcalcRawBody.split(',').toVector.map(_.toLong).map(UInt(_))
+
+  def audioSource(extension: String): AudioSource =
+    AudioSource(
+      new File(getClass.getResource(s"/kickinmule.$extension").getFile)
+    )
 }
