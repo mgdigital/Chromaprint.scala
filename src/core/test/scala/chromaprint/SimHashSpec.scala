@@ -27,7 +27,7 @@ class SimHashSpec extends AbstractSpec {
     val hash2 = SimHash(data.slice(10, 948 - 10))
     val hash3 = SimHash(data.slice(10, 948 - 100))
 
-    TestHelper.hammingDistance(hash1, hash2) should be <= 0
-    TestHelper.hammingDistance(hash1, hash3) should be <= 1
+    HammingDistance(hash1, hash2) should be <= 0
+    HammingDistance(hash1, hash3) should be <= 1
   }
 }
