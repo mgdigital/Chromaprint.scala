@@ -36,6 +36,9 @@ object Chroma {
       (frameSize / 2) min freqToIndex(maxFreq, frameSize, sampleRate)
 
     lazy val notes: SortedMap[Int,Note] =
+      notes0
+
+    private def notes0: SortedMap[Int,Note] =
       (minIndex until maxIndex)
         .foldLeft(SortedMap.empty[Int,Note]) { (m, i) =>
           val freq: Double = indexToFreq(i, frameSize, sampleRate)
@@ -63,6 +66,9 @@ object Chroma {
   final case class Note(byte: UShort, frac: Double) {
 
     lazy val interpolate: Note =
+      interpolate0
+
+    private def interpolate0: Note =
       frac match {
         case f if f < 0.5 =>
           Note(
