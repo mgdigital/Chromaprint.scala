@@ -85,7 +85,7 @@ Note that the fingerprinter requires an implicit for the FFT (Fast Fourier Trans
 
 ## Performance
 
-Performance was never going to be as good as the C++ library, which can calculate a fingerprint almost instantly - but it does need to be fast enough to be conveniently usable. On my hardware I can generate a first fingerprint in around 2.3 seconds from a standing start, with subsequent fingerprints generated in around 0.9 seconds (assuming audio files which need transcoding to PCM and resampling). Improving this further will be a target for future versions.
+Performance was never going to be as good as the C++ library, which can calculate a fingerprint almost instantly - but it does need to be fast enough to be conveniently usable. On my laptop I can generate a first fingerprint in around 1.6 seconds from a standing start, with subsequent fingerprints generated in around 0.5 seconds (assuming audio files which need transcoding to PCM and resampling).
 
 ---
 
