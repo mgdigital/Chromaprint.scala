@@ -31,7 +31,7 @@ trait Fingerprinter {
 
   def pipeFingerprint(algorithm: Int, duration: Float)(implicit fftImpl: FFT): Pipe[IO,UInt,Fingerprint] = {
     val empty = Fingerprint(algorithm, duration, Vector.empty)
-    data => Stream[IO,Fingerprint](empty) ++ data.mapAccumulate[BasicFingerprint,Fingerprint](empty) {
+    data => Stream[IO,Fingerprint](empty) ++ data.mapAccumulate[Fingerprint,Fingerprint](empty) {
       case (fp, el) =>
         val nextFp = fp.append(el)
         (nextFp, nextFp)
