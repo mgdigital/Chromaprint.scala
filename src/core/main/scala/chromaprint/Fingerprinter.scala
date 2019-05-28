@@ -29,12 +29,14 @@ trait Fingerprinter {
   def streamRaw(config: Config, audioSource: AudioSource)(implicit fftImpl: FFT): Stream[IO,UInt] =
     audioSource.audioStream(config.sampleRate) through pipeRaw(config)
 
-  def pipeFingerprint(algorithm: Int, duration: Float)(implicit fftImpl: FFT): Pipe[IO,UInt,Fingerprint] =
-    _.mapAccumulate[Fingerprint,Fingerprint](Fingerprint(algorithm, duration, Vector.empty)) {
+  def pipeFingerprint(algorithm: Int, duration: Float)(implicit fftImpl: FFT): Pipe[IO,UInt,Fingerprint] = {
+    val empty = Fingerprint(algorithm, duration, Vector.empty)
+    data => Stream[IO,Fingerprint](empty) ++ data.mapAccumulate[BasicFingerprint,Fingerprint](empty) {
       case (fp, el) =>
         val nextFp = fp.append(el)
         (nextFp, nextFp)
     }.map(_._2)
+  }
 
   def pipeRaw(config: Config)(implicit fftImpl: FFT): Pipe[IO,Short,UInt] =
     audio => (config.maxBytes match {
