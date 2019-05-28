@@ -72,37 +72,25 @@ object AudioSource {
       .unNoneTerminate.
       flatten
 
+  def fromFile(file: File): AudioSystemSource =
+    AudioFileSource(file)
+
   implicit def apply(file: File): AudioSystemSource =
-    new AudioSystemSource {
-      def name: String =
-        file.getName
+    fromFile(file)
 
-    val audioFileFormat: IO[AudioFileFormat] =
-      IO {
-        AudioSystem.getAudioFileFormat(file)
-      }
-
-      protected def acquireAudioInputStream: IO[AudioInputStream] =
-        IO.shift *> IO(AudioSystem.getAudioInputStream(file))
-
-      protected def acquireRawInputStream: IO[InputStream] =
-        IO.shift *> IO(new BufferedInputStream(new FileInputStream(file)))
-
-    }
+  def fromUrl(url: URL): AudioSystemSource =
+    AudioURLSource(url)
 
   implicit def apply(url: URL): AudioSystemSource =
-    new AudioSystemSource {
-      def name: String =
-        url.toString
-      val audioFileFormat: IO[AudioFileFormat] =
-        IO {
-          AudioSystem.getAudioFileFormat(url)
-        }
-      def acquireAudioInputStream: IO[AudioInputStream] =
-        IO.shift *> IO(AudioSystem.getAudioInputStream(url))
-    }
+    fromUrl(url)
 
-  def apply(str: String): Either[AudioSource.AudioSourceException,AudioSource] = {
+  def fromInputStream(stream: InputStream): AudioSystemSource =
+    AudioInputStreamSource(stream)
+
+  implicit def apply(stream: InputStream): AudioSystemSource =
+    fromInputStream(stream)
+
+  def fromString(str: String): Either[AudioSource.AudioSourceException,AudioSource] = {
     val file = new File(str)
     if (file.isFile) {
       Right(apply(file))
@@ -115,25 +103,6 @@ object AudioSource {
       }
     }
   }
-
-  implicit def apply(stream: InputStream): AudioSystemSource =
-    new AudioSystemSource {
-      def name: String =
-        toString
-      val audioFileFormat: IO[AudioFileFormat] =
-        IO {
-          AudioSystem.getAudioFileFormat(stream)
-        }
-      def acquireAudioInputStream: IO[AudioInputStream] =
-        stream match {
-          case s: AudioInputStream =>
-            IO.pure(s)
-          case _ =>
-            IO {
-              AudioSystem.getAudioInputStream(stream)
-            }
-        }
-    }
 
   class AudioSourceException(message: String) extends Exception(message)
   class DurationException(message: String) extends AudioSourceException(message)
@@ -217,4 +186,53 @@ trait AudioSystemSource extends AudioSource {
   def audioStream(sampleRate: Int): Stream[IO,Short] =
     audioByteStream(sampleRate) through pipeBytePairs
 
+}
+
+case class AudioFileSource(file: File) extends AudioSystemSource {
+
+  import AudioSource._
+
+  def name: String =
+    file.getName
+
+  val audioFileFormat: IO[AudioFileFormat] =
+    IO(AudioSystem.getAudioFileFormat(file))
+
+  protected def acquireAudioInputStream: IO[AudioInputStream] =
+    IO.shift *> IO(AudioSystem.getAudioInputStream(file))
+
+  protected def acquireRawInputStream: IO[InputStream] =
+    IO.shift *> IO(new BufferedInputStream(new FileInputStream(file)))
+
+}
+
+case class AudioURLSource(url: URL) extends AudioSystemSource {
+
+  import AudioSource._
+
+  def name: String =
+    url.toString
+
+  val audioFileFormat: IO[AudioFileFormat] =
+    IO(AudioSystem.getAudioFileFormat(url))
+
+  def acquireAudioInputStream: IO[AudioInputStream] =
+    IO.shift *> IO(AudioSystem.getAudioInputStream(url))
+}
+
+case class AudioInputStreamSource(stream: InputStream) extends AudioSystemSource {
+
+  def name: String =
+    toString
+
+  val audioFileFormat: IO[AudioFileFormat] =
+    IO(AudioSystem.getAudioFileFormat(stream))
+
+  def acquireAudioInputStream: IO[AudioInputStream] =
+    stream match {
+      case s: AudioInputStream =>
+        IO.pure(s)
+      case _ =>
+        IO(AudioSystem.getAudioInputStream(stream))
+    }
 }
