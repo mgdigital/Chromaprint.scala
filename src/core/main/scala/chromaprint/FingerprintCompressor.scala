@@ -14,8 +14,8 @@ object FingerprintCompressor {
   def toBytes(algorithm: Int, data: Vector[UInt]): Vector[Byte] = {
     var bits: Vector[Byte] = Vector.empty
     if (data.nonEmpty) {
-      bits ++= (1 until data.length)
-          .foldLeft(processSubFingerprint(data(0))){
+      bits ++= (1 until data.length).
+          foldLeft(processSubFingerprint(data(0))){
             (bits, i) =>
               bits ++ processSubFingerprint(data(i) ^ data(i - 1))
           }
@@ -55,9 +55,9 @@ object FingerprintCompressor {
     }.flushedBytes
 
   def processException(bits: Vector[Byte]): Vector[Byte] =
-    bits.map(_ - maxNormalValue)
-      .filter(_ >= 0)
-      .foldLeft(BitStringWriter()){
+    bits.map(_ - maxNormalValue).
+      filter(_ >= 0).
+      foldLeft(BitStringWriter()){
         (w, bit) => w.write(bit, exceptionBits)
       }.flushedBytes
 

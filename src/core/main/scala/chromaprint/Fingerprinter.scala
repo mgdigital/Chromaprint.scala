@@ -16,8 +16,8 @@ trait Fingerprinter {
     apply(Config.default, audioSource)
 
   def apply(config: Config, audioSource: AudioSource)(implicit fftImpl: FFT): IO[Fingerprint] =
-    IO.shift *> streamFingerprint(config, audioSource)
-      .last.compile.toVector.map(_.flatten).map(_(0))
+    IO.shift *> streamFingerprint(config, audioSource).
+      last.compile.toVector.map(_.flatten).map(_(0))
 
   def streamFingerprint(config: Config, audioSource: AudioSource)(implicit fftImpl: FFT): Stream[IO,Fingerprint] =
     Stream.bracket[IO,Float](
@@ -44,16 +44,16 @@ trait Fingerprinter {
         audio.take(maxBytes)
       case _ =>
         audio
-    }).prefetchN(config.maxBytes max config.sampleRate)
-      .through(SilenceRemover.pipe(config.silenceRemover))
-      .through(Framer.pipe(config.framerConfig))
-      .through(HammingWindow.pipe(config.hammingWindow))
-      .through(fftImpl.pipe(config.frameSize))
-      .through(Chroma.pipe(config.chromaConfig))
-      .through(ChromaFilter.pipe)
-      .through(ChromaNormalizer.pipe)
-      .through(IntegralImage.pipe)
-      .through(FingerprintCalculator.pipe(config.classifiers))
+    }).prefetchN(config.maxBytes max config.sampleRate).
+      through(SilenceRemover.pipe(config.silenceRemover)).
+      through(Framer.pipe(config.framerConfig)).
+      through(HammingWindow.pipe(config.hammingWindow)).
+      through(fftImpl.pipe(config.frameSize)).
+      through(Chroma.pipe(config.chromaConfig)).
+      through(ChromaFilter.pipe).
+      through(ChromaNormalizer.pipe).
+      through(IntegralImage.pipe).
+      through(FingerprintCalculator.pipe(config.classifiers))
 
 }
 

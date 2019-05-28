@@ -12,8 +12,8 @@ object Base64 {
     apply(ByteVector(data))
 
   def apply(data: ByteVector): String =
-    data.toBase64(alphabet)
-      .replaceAll("=+$", "")
+    data.toBase64(alphabet).
+      replaceAll("=+$", "")
 
   def unapply(str: String): Option[Vector[Byte]] =
     decode(str) match {

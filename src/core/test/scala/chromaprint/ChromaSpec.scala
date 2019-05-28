@@ -15,12 +15,12 @@ class ChromaSpec extends AbstractSpec {
     )
 
   it should "normal A" in {
-    val frame = Vector.fill[Double](128)(0D)
-      .updated(113, 1D)
+    val frame = Vector.fill[Double](128)(0D).
+      updated(113, 1D)
     val features: Vector[Double] =
-      Stream[Pure,Vector[Double]](frame)
-          .through(Chroma.pipe(Chroma.Config(range)))
-          .compile.toVector.flatten
+      Stream[Pure,Vector[Double]](frame).
+          through(Chroma.pipe(Chroma.Config(range))).
+          compile.toVector.flatten
 
     features should equal (Vector(
       1.0, 0.0, 0.0, 0.0, 0.0, 0.0,
@@ -29,12 +29,12 @@ class ChromaSpec extends AbstractSpec {
   }
 
   it should "normal G sharp" in {
-    val frame = Vector.fill[Double](128)(0D)
-      .updated(112, 1D)
+    val frame = Vector.fill[Double](128)(0D).
+      updated(112, 1D)
     val features: Vector[Double] =
-      Stream[Pure,Vector[Double]](frame)
-        .through(Chroma.pipe(Chroma.Config(range)))
-        .compile.toVector.flatten
+      Stream[Pure,Vector[Double]](frame).
+        through(Chroma.pipe(Chroma.Config(range))).
+        compile.toVector.flatten
 
     features should equal (Vector(
       0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
@@ -43,12 +43,12 @@ class ChromaSpec extends AbstractSpec {
   }
 
   it should "normal B" in {
-    val frame = Vector.fill[Double](128)(0D)
-      .updated(64, 1D) // 250 Hz
+    val frame = Vector.fill[Double](128)(0D).
+      updated(64, 1D) // 250 Hz
     val features: Vector[Double] =
-      Stream[Pure,Vector[Double]](frame)
-        .through(Chroma.pipe(Chroma.Config(range)))
-        .compile.toVector.flatten
+      Stream[Pure,Vector[Double]](frame).
+        through(Chroma.pipe(Chroma.Config(range))).
+        compile.toVector.flatten
 
     features should equal (Vector(
       0.0, 0.0, 1.0, 0.0, 0.0, 0.0,
@@ -65,51 +65,51 @@ class ChromaSpec extends AbstractSpec {
 
   it should "interpolated B" in {
     val frame =
-      Vector.fill[Double](128)(0D)
-        .updated(64, 1D)
+      Vector.fill[Double](128)(0D).
+        updated(64, 1D)
     val expectedFeatures: Vector[Double] =
       Vector(
         0.0, 0.286905, 0.713095, 0.0, 0.0, 0.0,
         0.0, 0.0, 0.0, 0.0, 0.0, 0.0
       )
     val features: Vector[Double] =
-      Stream[Pure,Vector[Double]](frame)
-        .through(Chroma.pipe(Chroma.Config(range, interpolate = true)))
-        .compile.toVector.flatten
+      Stream[Pure,Vector[Double]](frame).
+        through(Chroma.pipe(Chroma.Config(range, interpolate = true))).
+        compile.toVector.flatten
 
     assertFeaturesTolerance(features, expectedFeatures)
   }
 
   it should "interpolated A" in {
     val frame =
-      Vector.fill[Double](128)(0D)
-        .updated(113, 1D)
+      Vector.fill[Double](128)(0D).
+        updated(113, 1D)
     val expectedFeatures: Vector[Double] =
       Vector(
         0.555242, 0, 0, 0.0, 0.0, 0.0,
         0.0, 0.0, 0.0, 0.0, 0.0, 0.444758
       )
     val features: Vector[Double] =
-      Stream[Pure,Vector[Double]](frame)
-        .through(Chroma.pipe(Chroma.Config(range, interpolate = true)))
-        .compile.toVector.flatten
+      Stream[Pure,Vector[Double]](frame).
+        through(Chroma.pipe(Chroma.Config(range, interpolate = true))).
+        compile.toVector.flatten
 
     assertFeaturesTolerance(features, expectedFeatures)
   }
 
   it should "interpolated G sharp" in {
     val frame =
-      Vector.fill[Double](128)(0D)
-        .updated(112, 1D)
+      Vector.fill[Double](128)(0D).
+        updated(112, 1D)
     val expectedFeatures: Vector[Double] =
       Vector(
         0.401354, 0, 0, 0.0, 0.0, 0.0,
         0.0, 0.0, 0.0, 0.0, 0.0, 0.598646
       )
     val features: Vector[Double] =
-      Stream[Pure,Vector[Double]](frame)
-        .through(Chroma.pipe(Chroma.Config(range, interpolate = true)))
-        .compile.toVector.flatten
+      Stream[Pure,Vector[Double]](frame).
+        through(Chroma.pipe(Chroma.Config(range, interpolate = true))).
+        compile.toVector.flatten
 
     assertFeaturesTolerance(features, expectedFeatures)
   }
