@@ -91,7 +91,7 @@ object ClassifierPresets {
 
   // scalastyle:on magic.number
 
-  lazy val presets: Vector[Classifier.Config] =
+  lazy val presets: IndexedSeq[Classifier.Config] =
     Vector(
       preset0,
       preset1,

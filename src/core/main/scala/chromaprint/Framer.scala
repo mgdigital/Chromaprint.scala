@@ -10,7 +10,7 @@ object Framer {
     overlap: Int
   )
 
-  def pipe[F[_]](config: Config): Pipe[F,Short,Vector[Short]] =
+  def pipe[F[_]](config: Config): Pipe[F,Short,IndexedSeq[Short]] =
     _.mapAccumulate[Vector[Short],Option[Vector[Short]]](Vector.empty[Short]){
       (vec, b) =>
         vec :+ b match {

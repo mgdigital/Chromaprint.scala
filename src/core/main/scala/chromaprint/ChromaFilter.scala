@@ -4,7 +4,7 @@ import fs2.Pipe
 
 object ChromaFilter {
 
-  val coefficients: Vector[Double] =
+  val coefficients: IndexedSeq[Double] =
     Vector(
       0.25,
       0.75,
@@ -13,16 +13,16 @@ object ChromaFilter {
       0.25
     )
 
-  val defaultParams: Vector[Double] = coefficients
+  val defaultParams: IndexedSeq[Double] = coefficients
 
   val bufferLength = 8
 
-  def pipe[F[_]]: Pipe[F,Vector[Double],Vector[Double]] =
+  def pipe[F[_]]: Pipe[F,IndexedSeq[Double],IndexedSeq[Double]] =
     pipe(coefficients)
 
-  def pipe[F[_]](coefficients: Vector[Double]): Pipe[F,Vector[Double],Vector[Double]] = {
-    var buffer: Vector[Vector[Double]] = Vector.fill[Vector[Double]](bufferLength)(
-      Vector.fill[Double](Chroma.numBands)(0)
+  def pipe[F[_]](coefficients: IndexedSeq[Double]): Pipe[F,IndexedSeq[Double],IndexedSeq[Double]] = {
+    var buffer: IndexedSeq[IndexedSeq[Double]] = IndexedSeq.fill[IndexedSeq[Double]](bufferLength)(
+      IndexedSeq.fill[Double](Chroma.numBands)(0)
     )
     var bufferSize: Int = 1
     var bufferOffset: Int = 0

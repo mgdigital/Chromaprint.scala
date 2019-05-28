@@ -6,7 +6,7 @@ object FingerprintDecompressor {
 
   final class DecompressorException(message: String) extends Exception(message)
 
-  def apply(data: String): Either[DecompressorException,(Int, Vector[UInt])] =
+  def apply(data: String): Either[DecompressorException,(Int, IndexedSeq[UInt])] =
     Base64.decode(data) match {
       case Right(bytes) =>
         apply(bytes)
@@ -14,7 +14,7 @@ object FingerprintDecompressor {
         Left(new DecompressorException("Invalid Base64 string: " + e.getMessage))
     }
 
-  def apply(bytes: Vector[Byte]): Either[DecompressorException,(Int, Vector[UInt])] =
+  def apply(bytes: IndexedSeq[Byte]): Either[DecompressorException,(Int, IndexedSeq[UInt])] =
     if (bytes.length < 5) {
       Left(new DecompressorException("Invalid fingerprint (shorter than 5 bytes)"))
     } else {
@@ -53,9 +53,9 @@ object FingerprintDecompressor {
 
   private def extractNormalBits
   (
-    bytes: Vector[Byte],
+    bytes: IndexedSeq[Byte],
     length: Int
-  ): Either[DecompressorException,Vector[Vector[UShort]]] = {
+  ): Either[DecompressorException,IndexedSeq[IndexedSeq[UShort]]] = {
 
     var result: Vector[Vector[UShort]] = Vector.empty
     var current: Vector[UShort] = Vector.empty
@@ -81,7 +81,7 @@ object FingerprintDecompressor {
     }
   }
 
-  private def bytesToTriplets(bytes: Vector[Byte]): Vector[UShort] =
+  private def bytesToTriplets(bytes: IndexedSeq[Byte]): IndexedSeq[UShort] =
     bytes.grouped(3).flatMap { t =>
       Vector(
         t(0) & 0x07,
@@ -112,9 +112,9 @@ object FingerprintDecompressor {
 
   private def extractExceptionBits
   (
-    body: Vector[Byte],
-    normalBits: Vector[Vector[UShort]]
-  ): Either[DecompressorException,Vector[Vector[Option[UShort]]]] = {
+    body: IndexedSeq[Byte],
+    normalBits: IndexedSeq[IndexedSeq[UShort]]
+  ): Either[DecompressorException,IndexedSeq[IndexedSeq[Option[UShort]]]] = {
 
     val quintets = bytesToQuintets(body.drop(packedTripletSize(normalBits.flatten.length)))
 
@@ -137,13 +137,13 @@ object FingerprintDecompressor {
           offset += 1
           v.updated(n, Some(b))
         }
-      }.toVector)
+      })
     }
   }
 
   // scalastyle:off magic.number
 
-  private def bytesToQuintets(bytes: Vector[Byte]): Vector[UShort] =
+  private def bytesToQuintets(bytes: IndexedSeq[Byte]): IndexedSeq[UShort] =
     bytes.grouped(5).flatMap{ q =>
       Vector(
         q(0) & 0x1f
@@ -179,15 +179,15 @@ object FingerprintDecompressor {
               })
           })
       })
-    }.map(UShort(_)).toVector
+    }.map(UShort(_)).toIndexedSeq
 
   // scalastyle:on magic.number
 
   private def combineBits
   (
-    normalBits: Vector[Vector[UShort]],
-    exceptionBits: Vector[Vector[Option[UShort]]]
-  ): Vector[UShort] =
+    normalBits: IndexedSeq[IndexedSeq[UShort]],
+    exceptionBits: IndexedSeq[IndexedSeq[Option[UShort]]]
+  ): IndexedSeq[UShort] =
     normalBits.zip(exceptionBits).flatMap{ p =>
       p._1.zipWithIndex.map{ b =>
         if (b._1.toInt == 7) {
@@ -198,7 +198,7 @@ object FingerprintDecompressor {
       }
     }
 
-  private def unpackBits(bits: Vector[UShort]): Vector[UInt] =
+  private def unpackBits(bits: IndexedSeq[UShort]): IndexedSeq[UInt] =
     bits.foldLeft((UInt(0), UInt(0), Vector.empty[UInt])){ (t, bit) =>
       val ( value, lastBit, result ) = t
       if (bit.toInt == 0) {

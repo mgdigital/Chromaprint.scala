@@ -49,12 +49,12 @@ object Chroma {
           m.updated(i, Note(byte, frac))
         }
 
-    def featureBandRegular(frame: Vector[Double], band: Int): Double =
+    def featureBandRegular(frame: IndexedSeq[Double], band: Int): Double =
       notes.filter(_._2.byte.toInt == band).
         map(n => frame.lift(n._1).getOrElse(0D)).
         sum
 
-    def featureBandInterpolated(frame: Vector[Double], band: Int): Double =
+    def featureBandInterpolated(frame: IndexedSeq[Double], band: Int): Double =
       notes.filter(_._2.byte.toInt == band).
         map(n => frame.lift(n._1).getOrElse(0D) * n._2.interpolate.frac).
         sum +
@@ -97,14 +97,14 @@ object Chroma {
 
   final case class Config(range: Range, interpolate: Boolean)
 
-  def pipe[F[_]](config: Config): Pipe[F,Vector[Double],Vector[Double]] = {
+  def pipe[F[_]](config: Config): Pipe[F,IndexedSeq[Double],IndexedSeq[Double]] = {
 
     import config._
 
-    def features(frame: Vector[Double]): Vector[Double] =
+    def features(frame: IndexedSeq[Double]): IndexedSeq[Double] =
       (0 until numBands).map(featureBand(frame, _)).toVector
 
-    def featureBand(frame: Vector[Double], band: Int): Double =
+    def featureBand(frame: IndexedSeq[Double], band: Int): Double =
       if (interpolate) {
         range.featureBandInterpolated(frame, band)
       } else {

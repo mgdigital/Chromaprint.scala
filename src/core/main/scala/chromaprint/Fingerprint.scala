@@ -6,7 +6,7 @@ final case class Fingerprint
 (
   algorithm: Int,
   trackDuration: Float,
-  data: Vector[UInt]
+  data: IndexedSeq[UInt]
 ) {
 
   lazy val length: Int =

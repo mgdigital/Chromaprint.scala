@@ -6,11 +6,10 @@ import chromaprint.cli.Command.Args
 
 object Parser {
 
-  import scopt._
+  private val builder: scopt.OParserBuilder[Args] = scopt.OParser.builder[Args]
 
-  private val builder: OParserBuilder[Args] = OParser.builder[Args]
-
-  private val parser: OParser[Unit,Args] = {
+  private val parser: scopt.OParser[Unit,Args] = {
+    import scopt._
     import builder._
     OParser.sequence(
       programName("fpcalc"),
@@ -62,7 +61,7 @@ object Parser {
     )
   }
 
-  def apply(args: Vector[String]): Option[Args] =
-    OParser.parse(parser, args, Args.default)
+  def apply(args: Seq[String]): Option[Args] =
+    scopt.OParser.parse(parser, args, Args.default)
 
 }

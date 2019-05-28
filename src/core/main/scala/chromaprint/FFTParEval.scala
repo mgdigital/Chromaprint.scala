@@ -13,10 +13,10 @@ trait FFTParEval extends FFTAbstract {
   implicit val executionContext: ExecutionContext = ExecutionContext.global
   implicit val cs: ContextShift[IO] = IO.contextShift(scala.concurrent.ExecutionContext.Implicits.global)
 
-  def pipe(length: Int): Pipe[IO, Chunk[Double], Vector[Double]] =
+  def pipe(length: Int): Pipe[IO, Chunk[Double], IndexedSeq[Double]] =
     _.chunkN(chunkSize).
       parEvalMap(maxConcurrent)(chunk => IO (
-        Stream.chunk[IO,Vector[Double]](
+        Stream.chunk[IO,IndexedSeq[Double]](
           chunk.map(f => transformFrame(computeFrame(f), length))
         )
       )).flatten

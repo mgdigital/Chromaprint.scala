@@ -8,11 +8,11 @@ object FingerprintCompressor {
   val normalBits: Int = 3
   val exceptionBits: Int = 5
 
-  def apply(algorithm: Int, data: Vector[UInt]): String =
+  def apply(algorithm: Int, data: IndexedSeq[UInt]): String =
     Base64(toBytes(algorithm, data))
 
-  def toBytes(algorithm: Int, data: Vector[UInt]): Vector[Byte] = {
-    var bits: Vector[Byte] = Vector.empty
+  def toBytes(algorithm: Int, data: IndexedSeq[UInt]): IndexedSeq[Byte] = {
+    var bits: Vector[Byte] = Vector.empty[Byte]
     if (data.nonEmpty) {
       bits ++= (1 until data.length).
           foldLeft(processSubFingerprint(data(0))){
@@ -25,7 +25,7 @@ object FingerprintCompressor {
       processException(bits)
   }
 
-  def processSubFingerprint(x: UInt): Vector[Byte] = {
+  def processSubFingerprint(x: UInt): IndexedSeq[Byte] = {
     var bit: Int = 1
     var lastBit: Int = 0
     var c: UInt = x
@@ -41,7 +41,7 @@ object FingerprintCompressor {
     r :+ 0.toByte
   }
 
-  def initBytes(algorithm: Int, length: Int): Vector[Byte] =
+  def initBytes(algorithm: Int, length: Int): IndexedSeq[Byte] =
     Vector(
       (algorithm - 1) & 255,
       (length >> 16) & 255,
@@ -49,12 +49,12 @@ object FingerprintCompressor {
       length & 255
     ).map(_.toByte)
 
-  def processNormal(bits: Vector[Byte]): Vector[Byte] =
+  def processNormal(bits: IndexedSeq[Byte]): IndexedSeq[Byte] =
     bits.foldLeft(BitStringWriter()){
       (w, bit) => w.write(bit.toInt min maxNormalValue, normalBits)
     }.flushedBytes
 
-  def processException(bits: Vector[Byte]): Vector[Byte] =
+  def processException(bits: IndexedSeq[Byte]): IndexedSeq[Byte] =
     bits.map(_ - maxNormalValue).
       filter(_ >= 0).
       foldLeft(BitStringWriter()){
@@ -69,12 +69,12 @@ object FingerprintCompressor {
 
   final class BitStringWriter private
   (
-    val bytes: Vector[Byte],
+    val bytes: IndexedSeq[Byte],
     buffer: Int,
     bufferSize: Int
   ) {
 
-    def flushedBytes: Vector[Byte] =
+    def flushedBytes: IndexedSeq[Byte] =
       flushed.bytes
 
     override def toString: String =
@@ -83,7 +83,7 @@ object FingerprintCompressor {
     def write(x: Int, bits: Int): BitStringWriter = {
       var buffer: Int = this.buffer | (x << this.bufferSize)
       var bufferSize: Int = this.bufferSize + bits
-      var value: Vector[Byte] = this.bytes
+      var value: IndexedSeq[Byte] = this.bytes
       while (bufferSize >= 8) {
         value :+= (buffer & 255).toByte
         buffer >>= 8
@@ -95,7 +95,7 @@ object FingerprintCompressor {
     def flushed: BitStringWriter = {
       var buffer: Int = this.buffer
       var bufferSize: Int = this.bufferSize
-      var value: Vector[Byte] = this.bytes
+      var value: IndexedSeq[Byte] = this.bytes
       while (bufferSize > 0) {
         value :+= (buffer & 255).toByte
         buffer >>= 8

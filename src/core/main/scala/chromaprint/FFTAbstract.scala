@@ -7,12 +7,12 @@ abstract class FFTAbstract extends FFT {
   type TFrame
   type TComplex
 
-  def transformFrame(frame: TFrame, length: Int): Vector[Double] =
+  def transformFrame(frame: TFrame, length: Int): IndexedSeq[Double] =
     Vector(complexToRealSquared(frameIndex(frame, length, 0))) ++
       (1 until (length / 2)).map(frameIndex(frame, length, _)).map(complexToSquared) ++
       Vector(complexToImagSquared(frameIndex(frame, length, length / 2)))
 
-  def transformResult[F[_]](length: Int): Pipe[F,TFrame,Vector[Double]] =
+  def transformResult[F[_]](length: Int): Pipe[F,TFrame,IndexedSeq[Double]] =
     _ map (transformFrame(_, length))
 
   def complexToSquared(complex: TComplex): Double =
