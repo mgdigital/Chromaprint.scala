@@ -7,7 +7,7 @@ class AudioSourceSpec extends AbstractSpec {
   def readAudioDuration(extension: String): Unit = {
     val source = TestHelper.audioSource(extension)
     val duration = source.duration.unsafeRunSync()
-    duration should be (4.65F +- 0.1F)
+    duration should be (3.7F +- 0.1F)
   }
 
   def readAudioStream(extension: String): Unit = {

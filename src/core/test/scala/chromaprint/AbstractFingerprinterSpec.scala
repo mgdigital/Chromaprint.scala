@@ -9,15 +9,11 @@ abstract class AbstractFingerprinterSpec extends AbstractSpec {
   def generateFingerprint(extension: String): Unit = {
     val source = TestHelper.audioSource(extension)
     val fingerprint = Fingerprinter(Presets.default, source)(fftImpl).unsafeRunSync()
-    val expected = TestHelper.fpcalcRawData
+    val expectedRaw = TestHelper.fpcalcRawData
+    val expectedCompressed = TestHelper.fpcalcBody
 
-    println(s"length:${fingerprint.length}")
-//    val matchResult = FingerprintMatcher(fingerprint.data, expected)
-//    println(extension + matchResult)
-//    val expectedCompressed = TestHelper.fpcalcBody
-
-//    fingerprint.data should equal (expectedRaw)
-//    fingerprint.compressed should equal (expectedCompressed)
+    fingerprint.data should equal (expectedRaw)
+    fingerprint.compressed should equal (expectedCompressed)
 
   }
 
@@ -25,11 +21,11 @@ abstract class AbstractFingerprinterSpec extends AbstractSpec {
     generateFingerprint("wav")
   }
 
-  it should "Generate a flac fingerprint" in {
-    generateFingerprint("flac")
-  }
-
-  it should "Generate a mp3 fingerprint" in {
-    generateFingerprint("mp3")
-  }
+//  it should "Generate a flac fingerprint" in {
+//    generateFingerprint("flac")
+//  }
+//
+//  it should "Generate a mp3 fingerprint" in {
+//    generateFingerprint("mp3")
+//  }
 }
