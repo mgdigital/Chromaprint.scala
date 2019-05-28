@@ -104,6 +104,9 @@ object AudioSource {
     }
   }
 
+  def apply(str: String): Either[AudioSource.AudioSourceException,AudioSource] =
+    fromString(str)
+
   class AudioSourceException(message: String) extends Exception(message)
   class DurationException(message: String) extends AudioSourceException(message)
   class ConversionException(message: String) extends AudioSourceException(message)
