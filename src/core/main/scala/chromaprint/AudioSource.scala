@@ -164,7 +164,12 @@ trait AudioSystemSource extends AudioSource {
       .filter(_ > 0F)
       .map(_ / 1000000)
       .getOrElse({
-        fileFormat.getFrameLength.toFloat / fileFormat.getFormat.getSampleRate
+        fileFormat.getFormat.getSampleRate match {
+          case sampleRate if sampleRate > 0F =>
+            fileFormat.getFrameLength.toFloat / sampleRate
+          case _ =>
+            0F
+        }
       })
   })
 
