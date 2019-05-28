@@ -38,8 +38,8 @@ object AudioSource {
       case (Some(little), big) =>
         (None, Some(bytePairToShort(big, little)))
     }
-      .map(_._2)
-      .unNone
+      .map(_._2).
+      unNone
 
   def defaultChunkSize(format: AudioFormat): Int =
     (format.getSampleRate * format.getSampleSizeInBits / 8).toInt max 11025
@@ -69,8 +69,8 @@ object AudioSource {
         }
       })
     }
-      .unNoneTerminate
-      .flatten
+      .unNoneTerminate.
+      flatten
 
   implicit def apply(file: File): AudioSystemSource =
     new AudioSystemSource {
@@ -158,13 +158,18 @@ trait AudioSystemSource extends AudioSource {
   import AudioSource._
 
   override def duration: IO[Float] = audioFileFormat.flatMap(fileFormat => IO {
-    Option(fileFormat.properties())
-      .map(_.get("duration"))
-      .map(_.toString.toFloat)
-      .filter(_ > 0F)
-      .map(_ / 1000000)
-      .getOrElse({
-        fileFormat.getFrameLength.toFloat / fileFormat.getFormat.getSampleRate
+    Option(fileFormat.properties()).
+      map(_.get("duration")).
+      map(_.toString.toFloat).
+      filter(_ > 0F).
+      map(_ / 1000000).
+      getOrElse({
+        fileFormat.getFormat.getSampleRate match {
+          case sampleRate if sampleRate > 0F =>
+            fileFormat.getFrameLength.toFloat / sampleRate
+          case _ =>
+            0F
+        }
       })
   })
 

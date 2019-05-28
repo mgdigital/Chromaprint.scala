@@ -39,8 +39,8 @@ object Chroma {
       notes0
 
     private def notes0: SortedMap[Int,Note] =
-      (minIndex until maxIndex)
-        .foldLeft(SortedMap.empty[Int,Note]) { (m, i) =>
+      (minIndex until maxIndex).
+        foldLeft(SortedMap.empty[Int,Note]) { (m, i) =>
           val freq: Double = indexToFreq(i, frameSize, sampleRate)
           val octalFreq: Double = freqToOctave(freq)
           val rawNote: Double = (octalFreq - octalFreq.floor) * numBands
@@ -50,16 +50,16 @@ object Chroma {
         }
 
     def featureBandRegular(frame: Vector[Double], band: Int): Double =
-      notes.filter(_._2.byte.toInt == band)
-        .map(n => frame.lift(n._1).getOrElse(0D))
-        .sum
+      notes.filter(_._2.byte.toInt == band).
+        map(n => frame.lift(n._1).getOrElse(0D)).
+        sum
 
     def featureBandInterpolated(frame: Vector[Double], band: Int): Double =
-      notes.filter(_._2.byte.toInt == band)
-        .map(n => frame.lift(n._1).getOrElse(0D) * n._2.interpolate.frac)
-        .sum +
-        notes.filter(_._2.interpolate.byte.toInt == band)
-          .map(n => frame.lift(n._1).getOrElse(0D) * (1D - n._2.interpolate.frac)).sum
+      notes.filter(_._2.byte.toInt == band).
+        map(n => frame.lift(n._1).getOrElse(0D) * n._2.interpolate.frac).
+        sum +
+        notes.filter(_._2.interpolate.byte.toInt == band).
+          map(n => frame.lift(n._1).getOrElse(0D) * (1D - n._2.interpolate.frac)).sum
 
   }
 

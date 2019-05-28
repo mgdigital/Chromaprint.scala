@@ -28,8 +28,9 @@ class FingerprintCalculatorSpec extends AbstractSpec {
       Vector(0, 1),
       Vector(2, 3),
       Vector(4, 5)
-    ).through(IntegralImage.pipe)
-      .through(FingerprintCalculator.pipe(classifierConfig)).compile.toVector
+    ).through(IntegralImage.pipe).
+      through(FingerprintCalculator.pipe(classifierConfig)).
+      compile.toVector
 
     rawFingerprint should equal (Vector(0, 2, 3).map(FingerprintCalculator.grayCode))
   }

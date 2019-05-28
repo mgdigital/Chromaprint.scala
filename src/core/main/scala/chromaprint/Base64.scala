@@ -6,15 +6,18 @@ object Base64 {
 
   final class EncoderException(message: String) extends Exception(message)
 
-  private val alphabet: Bases.Base64Alphabet = Bases.Alphabets.Base64Url
+  val alphabet: Bases.Base64Alphabet = Bases.Alphabets.Base64Url
 
   def apply(data: Seq[Byte]): String =
-    ByteVector(data).toBase64(alphabet)
-      .replaceAll("=+$", "")
+    apply(ByteVector(data))
+
+  def apply(data: ByteVector): String =
+    data.toBase64(alphabet).
+      replaceAll("=+$", "")
 
   def unapply(str: String): Option[Vector[Byte]] =
     decode(str) match {
-      case Left(e) =>
+      case Left(_) =>
         None
       case Right(bytes) =>
         Some(bytes)

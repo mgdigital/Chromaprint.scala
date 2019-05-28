@@ -17,11 +17,11 @@ abstract class AbstractFFTSpec extends AbstractSpec {
   val framerParams = Framer.Config(frameSize, overlap)
 
   def audioToFFTFrames(input: Stream[Pure,Short]): Vector[Vector[Double]] =
-    input
-      .through(Framer.pipe(framerParams))
-      .through(HammingWindow.pipe(HammingWindow.short(frameSize)))
-      .through(fftImpl.pipe(frameSize)).compile.toVector
-      .unsafeRunSync()
+    input.
+      through(Framer.pipe(framerParams)).
+      through(HammingWindow.pipe(HammingWindow.short(frameSize))).
+      through(fftImpl.pipe(frameSize)).compile.toVector.
+      unsafeRunSync()
 
   val inputSize: Int = frameSize + (nFrames - 1) * (frameSize - overlap) // 80
 
@@ -66,8 +66,8 @@ abstract class AbstractFFTSpec extends AbstractSpec {
   }
 
   it should "dc" in {
-    val input: Vector[Short] = (0 until inputSize).toVector
-      .map(_ => (Short.MaxValue * 0.5).toShort)
+    val input: Vector[Short] = (0 until inputSize).toVector.
+      map(_ => (Short.MaxValue * 0.5).toShort)
     val expectedSpectrum: Vector[Double] = Vector(
       0.494691,
       0.219547,

@@ -118,9 +118,9 @@ object FingerprintDecompressor {
 
     val quintets = bytesToQuintets(body.drop(packedTripletSize(normalBits.flatten.length)))
 
-    val maxNormals: Map[Int,Set[Int]] = normalBits.zipWithIndex
-      .map(t => (t._2, t._1.zipWithIndex.filter(_._1.toInt == 7).map(_._2).toSet))
-      .foldLeft(Map.empty[Int,Set[Int]]){ (m, n) => m.updated(n._1, n._2)}
+    val maxNormals: Map[Int,Set[Int]] = normalBits.zipWithIndex.
+      map(t => (t._2, t._1.zipWithIndex.filter(_._1.toInt == 7).map(_._2).toSet)).
+      foldLeft(Map.empty[Int,Set[Int]]){ (m, n) => m.updated(n._1, n._2)}
 
     val requiredExceptionBits = maxNormals.values.flatten.toVector.length
 

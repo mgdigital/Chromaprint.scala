@@ -53,35 +53,35 @@ class FingerprintCompressorSpec extends AbstractSpec {
   import FingerprintCompressor.BitStringWriter
 
   it should "write 1 byte" in {
-    val writer = BitStringWriter()
-      .write(0, 2)
-      .write(1, 2)
-      .write(2, 2)
-      .write(3, 2)
-      .flushed
+    val writer = BitStringWriter().
+      write(0, 2).
+      write(1, 2).
+      write(2, 2).
+      write(3, 2).
+      flushed
 
     writer.bytes should equal (Vector( -28 ).map(_.toByte))
   }
 
   it should "write 2 bytes incomplete" in {
-    val writer = BitStringWriter()
-      .write(0, 2)
-      .write(1, 2)
-      .write(2, 2)
-      .write(3, 2)
-      .write(1, 2)
-      .flushed
+    val writer = BitStringWriter().
+      write(0, 2).
+      write(1, 2).
+      write(2, 2).
+      write(3, 2).
+      write(1, 2).
+      flushed
 
     writer.bytes should equal (Vector( -28, 1 ).map(_.toByte))
   }
 
   it should "write 2 bytes split" in {
-    val writer = BitStringWriter()
-      .write(0, 3)
-      .write(1, 3)
-      .write(2, 3)
-      .write(3, 3)
-      .flushed
+    val writer = BitStringWriter().
+      write(0, 3).
+      write(1, 3).
+      write(2, 3).
+      write(3, 3).
+      flushed
 
     writer.bytes should equal (Vector( -120, 6 ).map(_.toByte))
   }
