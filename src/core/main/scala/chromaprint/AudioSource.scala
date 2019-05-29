@@ -114,8 +114,6 @@ object AudioSource {
 
   abstract class AudioSystemSource extends AudioSource() {
 
-    import AudioSource._
-
     override def duration: IO[Float] = audioFileFormat.flatMap(fileFormat => IO {
       Option(fileFormat.properties()).
         map(_.get("duration")).
@@ -178,9 +176,7 @@ object AudioSource {
 
   }
 
-  case class AudioFileSource(file: File) extends AudioSystemSource() {
-
-    import AudioSource._
+  case class AudioFileSource(file: File) extends AudioSystemSource {
 
     def name: String =
       file.getName
@@ -196,9 +192,7 @@ object AudioSource {
 
   }
 
-  case class AudioURLSource(url: URL) extends AudioSystemSource() {
-
-    import AudioSource._
+  case class AudioURLSource(url: URL) extends AudioSystemSource {
 
     def name: String =
       url.toString
@@ -210,7 +204,7 @@ object AudioSource {
       IO.shift *> IO(AudioSystem.getAudioInputStream(url))
   }
 
-  case class AudioInputStreamSource(stream: InputStream) extends AudioSystemSource() {
+  case class AudioInputStreamSource(stream: InputStream) extends AudioSystemSource {
 
     def name: String =
       toString
