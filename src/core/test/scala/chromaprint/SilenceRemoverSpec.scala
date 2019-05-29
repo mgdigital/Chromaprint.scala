@@ -1,6 +1,6 @@
 package chromaprint
 
-import fs2.{Pure,Stream}
+import fs2.Stream
 
 class SilenceRemoverSpec extends AbstractSpec {
 

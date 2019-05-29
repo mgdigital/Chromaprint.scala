@@ -29,7 +29,7 @@ abstract class Fingerprinter {
   def streamRaw(config: Config, audioSource: AudioSource)(implicit fftImpl: FFT): Stream[IO,UInt] =
     audioSource.audioStream(config.sampleRate) through pipeRaw(config)
 
-  def pipeFingerprint(algorithm: Int, duration: Float)(implicit fftImpl: FFT): Pipe[IO,UInt,Fingerprint] = {
+  def pipeFingerprint(algorithm: Int, duration: Float): Pipe[IO,UInt,Fingerprint] = {
     val empty = Fingerprint(algorithm, duration, Vector.empty)
     data => Stream[IO,Fingerprint](empty) ++ data.mapAccumulate[Fingerprint,Fingerprint](empty) {
       case (fp, el) =>
