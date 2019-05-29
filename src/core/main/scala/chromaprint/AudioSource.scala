@@ -112,6 +112,121 @@ object AudioSource {
   class ConversionException(message: String) extends AudioSourceException(message)
   class ResamplingException(message: String) extends AudioSourceException(message)
 
+  abstract class AudioSystemSource extends AudioSource() {
+
+    import AudioSource._
+
+    override def duration: IO[Float] = audioFileFormat.flatMap(fileFormat => IO {
+      Option(fileFormat.properties()).
+        map(_.get("duration")).
+        map(_.toString.toFloat).
+        filter(_ > 0F).
+        map(_ / 1000000).
+        getOrElse({
+          fileFormat.getFormat.getSampleRate match {
+            case sampleRate if sampleRate > 0F =>
+              fileFormat.getFrameLength.toFloat / sampleRate
+            case _ =>
+              0F
+          }
+        })
+    })
+
+    val audioFileFormat: IO[AudioFileFormat]
+
+    protected def acquireAudioInputStream: IO[AudioInputStream]
+
+    def targetFormat(sampleRate: Int): AudioFormat =
+      AudioSource.targetFormat(sampleRate)
+
+    protected def acquireIntermediateAudioInputStream(sampleRate: Int): IO[AudioInputStream] =
+      IO.shift *> acquireAudioInputStream map { stream =>
+        if (!AudioSystem.isConversionSupported(targetFormat(sampleRate), stream.getFormat)) {
+          if (AudioSystem.isConversionSupported(AudioFormat.Encoding.PCM_SIGNED, stream.getFormat)) {
+            AudioSystem.getAudioInputStream(AudioFormat.Encoding.PCM_SIGNED, stream)
+          } else {
+            throw new ConversionException("Cannot convert input audio")
+          }
+        } else {
+          stream
+        }
+      }
+
+    protected def acquireResampledAudioInputStream(sampleRate: Int): IO[AudioInputStream] =
+      IO.shift *> acquireIntermediateAudioInputStream(sampleRate) map { intermediate =>
+        val intermediateFormat: AudioFormat = intermediate.getFormat
+        val finalFormat = targetFormat(sampleRate)
+        if (intermediateFormat.getChannels != 1 || intermediateFormat.getSampleRate != sampleRate) {
+          if (!AudioSystem.isConversionSupported(finalFormat, intermediateFormat)) {
+            throw new ResamplingException(s"Cannot resample audio from $intermediateFormat to $finalFormat")
+          } else {
+            AudioSystem.getAudioInputStream(
+              finalFormat,
+              intermediate
+            )
+          }
+        } else {
+          intermediate
+        }
+      }
+
+    def audioByteStream(sampleRate: Int): Stream[IO,Byte] =
+      audioInputStreamToByteStream(acquireResampledAudioInputStream(sampleRate))
+
+    def audioStream(sampleRate: Int): Stream[IO,Short] =
+      audioByteStream(sampleRate) through pipeBytePairs
+
+  }
+
+  case class AudioFileSource(file: File) extends AudioSystemSource() {
+
+    import AudioSource._
+
+    def name: String =
+      file.getName
+
+    val audioFileFormat: IO[AudioFileFormat] =
+      IO(AudioSystem.getAudioFileFormat(file))
+
+    protected def acquireAudioInputStream: IO[AudioInputStream] =
+      IO.shift *> IO(AudioSystem.getAudioInputStream(file))
+
+    protected def acquireRawInputStream: IO[InputStream] =
+      IO.shift *> IO(new BufferedInputStream(new FileInputStream(file)))
+
+  }
+
+  case class AudioURLSource(url: URL) extends AudioSystemSource() {
+
+    import AudioSource._
+
+    def name: String =
+      url.toString
+
+    val audioFileFormat: IO[AudioFileFormat] =
+      IO(AudioSystem.getAudioFileFormat(url))
+
+    def acquireAudioInputStream: IO[AudioInputStream] =
+      IO.shift *> IO(AudioSystem.getAudioInputStream(url))
+  }
+
+  case class AudioInputStreamSource(stream: InputStream) extends AudioSystemSource() {
+
+    def name: String =
+      toString
+
+    val audioFileFormat: IO[AudioFileFormat] =
+      IO(AudioSystem.getAudioFileFormat(stream))
+
+    def acquireAudioInputStream: IO[AudioInputStream] =
+      stream match {
+        case s: AudioInputStream =>
+          IO.pure(s)
+        case _ =>
+          IO(AudioSystem.getAudioInputStream(stream))
+      }
+  }
+
 }
 
 abstract class AudioSource {
@@ -123,119 +238,4 @@ abstract class AudioSource {
   def duration: IO[Float]
 
   def audioStream(sampleRate: Int): Stream[IO,Short]
-}
-
-abstract class AudioSystemSource extends AudioSource {
-
-  import AudioSource._
-
-  override def duration: IO[Float] = audioFileFormat.flatMap(fileFormat => IO {
-    Option(fileFormat.properties()).
-      map(_.get("duration")).
-      map(_.toString.toFloat).
-      filter(_ > 0F).
-      map(_ / 1000000).
-      getOrElse({
-        fileFormat.getFormat.getSampleRate match {
-          case sampleRate if sampleRate > 0F =>
-            fileFormat.getFrameLength.toFloat / sampleRate
-          case _ =>
-            0F
-        }
-      })
-  })
-
-  val audioFileFormat: IO[AudioFileFormat]
-
-  protected def acquireAudioInputStream: IO[AudioInputStream]
-
-  def targetFormat(sampleRate: Int): AudioFormat =
-    AudioSource.targetFormat(sampleRate)
-
-  protected def acquireIntermediateAudioInputStream(sampleRate: Int): IO[AudioInputStream] =
-    IO.shift *> acquireAudioInputStream map { stream =>
-      if (!AudioSystem.isConversionSupported(targetFormat(sampleRate), stream.getFormat)) {
-        if (AudioSystem.isConversionSupported(AudioFormat.Encoding.PCM_SIGNED, stream.getFormat)) {
-          AudioSystem.getAudioInputStream(AudioFormat.Encoding.PCM_SIGNED, stream)
-        } else {
-          throw new ConversionException("Cannot convert input audio")
-        }
-      } else {
-        stream
-      }
-    }
-
-  protected def acquireResampledAudioInputStream(sampleRate: Int): IO[AudioInputStream] =
-    IO.shift *> acquireIntermediateAudioInputStream(sampleRate) map { intermediate =>
-      val intermediateFormat: AudioFormat = intermediate.getFormat
-      val finalFormat = targetFormat(sampleRate)
-      if (intermediateFormat.getChannels != 1 || intermediateFormat.getSampleRate != sampleRate) {
-        if (!AudioSystem.isConversionSupported(finalFormat, intermediateFormat)) {
-          throw new ResamplingException(s"Cannot resample audio from $intermediateFormat to $finalFormat")
-        } else {
-          AudioSystem.getAudioInputStream(
-            finalFormat,
-            intermediate
-          )
-        }
-      } else {
-        intermediate
-      }
-    }
-
-  def audioByteStream(sampleRate: Int): Stream[IO,Byte] =
-    audioInputStreamToByteStream(acquireResampledAudioInputStream(sampleRate))
-
-  def audioStream(sampleRate: Int): Stream[IO,Short] =
-    audioByteStream(sampleRate) through pipeBytePairs
-
-}
-
-case class AudioFileSource(file: File) extends AudioSystemSource {
-
-  import AudioSource._
-
-  def name: String =
-    file.getName
-
-  val audioFileFormat: IO[AudioFileFormat] =
-    IO(AudioSystem.getAudioFileFormat(file))
-
-  protected def acquireAudioInputStream: IO[AudioInputStream] =
-    IO.shift *> IO(AudioSystem.getAudioInputStream(file))
-
-  protected def acquireRawInputStream: IO[InputStream] =
-    IO.shift *> IO(new BufferedInputStream(new FileInputStream(file)))
-
-}
-
-case class AudioURLSource(url: URL) extends AudioSystemSource {
-
-  import AudioSource._
-
-  def name: String =
-    url.toString
-
-  val audioFileFormat: IO[AudioFileFormat] =
-    IO(AudioSystem.getAudioFileFormat(url))
-
-  def acquireAudioInputStream: IO[AudioInputStream] =
-    IO.shift *> IO(AudioSystem.getAudioInputStream(url))
-}
-
-case class AudioInputStreamSource(stream: InputStream) extends AudioSystemSource {
-
-  def name: String =
-    toString
-
-  val audioFileFormat: IO[AudioFileFormat] =
-    IO(AudioSystem.getAudioFileFormat(stream))
-
-  def acquireAudioInputStream: IO[AudioInputStream] =
-    stream match {
-      case s: AudioInputStream =>
-        IO.pure(s)
-      case _ =>
-        IO(AudioSystem.getAudioInputStream(stream))
-    }
 }
