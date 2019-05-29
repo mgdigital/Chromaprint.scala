@@ -5,7 +5,7 @@ import fs2.{Chunk, Pipe, Stream}
 
 import scala.concurrent.ExecutionContext
 
-trait FFTParEval extends FFTAbstract {
+abstract class FFTParEval extends FFTAbstract {
 
   val chunkSize: Int = 50
   val maxConcurrent: Int = 5

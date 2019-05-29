@@ -114,7 +114,7 @@ object AudioSource {
 
 }
 
-trait AudioSource {
+abstract class AudioSource {
 
   def name: String
 
@@ -125,7 +125,7 @@ trait AudioSource {
   def audioStream(sampleRate: Int): Stream[IO,Short]
 }
 
-trait AudioSystemSource extends AudioSource {
+abstract class AudioSystemSource extends AudioSource {
 
   import AudioSource._
 
