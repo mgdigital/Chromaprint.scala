@@ -6,7 +6,7 @@ import scala.math.sqrt
 
 object ChromaNormalizer {
 
-  def pipe[F[_]]: Pipe[F,Vector[Double],Vector[Double]] =
+  def pipe[F[_]]: Pipe[F,IndexedSeq[Double],IndexedSeq[Double]] =
     _ map normalizeValues
 
   def euclidianNorm(values: Seq[Double]): Double =
@@ -21,15 +21,15 @@ object ChromaNormalizer {
 
   val defaultThreshold: Double = 0.01
 
-  def normalizeValues(values: Vector[Double]): Vector[Double] =
+  def normalizeValues(values: IndexedSeq[Double]): IndexedSeq[Double] =
     normalizeValues(values, euclidianNorm(values), defaultThreshold)
 
   def normalizeValues
   (
-    values: Vector[Double],
+    values: IndexedSeq[Double],
     norm: Double,
     threshold: Double
-  ): Vector[Double] =
+  ): IndexedSeq[Double] =
     if (norm < threshold) {
       Vector.fill[Double](values.length)(0D)
     } else {

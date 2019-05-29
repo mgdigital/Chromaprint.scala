@@ -6,12 +6,12 @@ class IntegralImageSpec extends AbstractSpec {
 
   behavior of "Integral image"
 
-  def createIntegral(rows: Vector[Double]*): Vector[Vector[Double]] =
+  def createIntegral(rows: Vector[Double]*): IndexedSeq[IndexedSeq[Double]] =
     Stream[Pure,Vector[Double]](rows :_*).
       through(IntegralImage.pipe).
       compile.toVector
 
-  def area(integral: Vector[Vector[Double]], x1: Int, y1: Int, x2: Int, y2: Int): Double =
+  def area(integral: IndexedSeq[IndexedSeq[Double]], x1: Int, y1: Int, x2: Int, y2: Int): Double =
     IntegralImage.area(integral, x1, y1, x2, y2)
 
   it should "integrate basic 2d" in {

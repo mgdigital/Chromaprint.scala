@@ -16,7 +16,7 @@ abstract class AbstractFFTSpec extends AbstractSpec {
 
   val framerParams = Framer.Config(frameSize, overlap)
 
-  def audioToFFTFrames(input: Stream[Pure,Short]): Vector[Vector[Double]] =
+  def audioToFFTFrames(input: Stream[Pure,Short]): IndexedSeq[IndexedSeq[Double]] =
     input.
       through(Framer.pipe(framerParams)).
       through(HammingWindow.pipe(HammingWindow.short(frameSize))).

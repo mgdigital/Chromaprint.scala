@@ -34,7 +34,7 @@ In your `build.sbt`, add:
 ```scala
 resolvers += Resolver.bintrayRepo("mgdigital", "chromaprint")
 
-libraryDependencies += "com.github.mgdigital" %% "chromaprint" % "0.2.2"
+libraryDependencies += "com.github.mgdigital" %% "chromaprint" % "0.2.6"
 ```
 
 Then in your Scala application:
@@ -50,6 +50,46 @@ println(fingerprint.compressed)
 
 ```
 Note: The fingerprint is generated using a [FS2 stream](https://github.com/functional-streams-for-scala/fs2), and the `Fingerprinter` returns a type of `IO[Fingerprint]`, which is a `Fingerprint` type wrapped in a [Cats Effect IO](https://typelevel.org/cats-effect/datatypes/io.html) type. Running `ùnsafeRunSync()` on the `IO[Fingerprint]` object is the quickest way to have it return the `Fingerprint`, a different `IO` method may be better suited to your application.
+
+### Java interop
+
+In your `pom.xml`, add:
+
+```xml
+
+    <repositories>
+        <repository>
+            <id>bintray-chromaprint</id>
+            <name>bintray</name>
+            <url>https://dl.bintray.com/mgdigital/chromaprint</url>
+        </repository>
+    </repositories>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.github.mgdigital</groupId>
+            <artifactId>chromaprint_2.12</artifactId>
+            <version>0.2.6</version>
+        </dependency>
+    </dependencies>
+```
+
+Then in your Java application:
+
+```java
+
+import java.io.File;
+import chromaprint.AudioSource;
+import chromaprint.Fingerprint;
+import chromaprint.quick.Fingerprinter;
+
+File file = new File("/audio/Pocket Calculator.flac");
+AudioSource source = new AudioSource.AudioFileSource(file);
+Fingerprinter fingerprinter = new Fingerprinter();
+Fingerprint fingerprint = fingerprinter.apply(source).unsafeRunSync();
+System.out.println(fingerprint.compressed());
+// AQADtNQYhYkYnGhw7X...
+```
 
 ### Build the Docker image
 
@@ -71,7 +111,7 @@ Get an [AcoustID](https://acoustid.org/) client ID and provide the `acoustid-cli
 $ sbt run "/audio/Pocket Calculator.flac" --acoustid-client=MyClientId
 [info] Running chromaprint.Main /audio/Pocket Calculator.flac --acoustid-client=MyClientId
 Fingerprinting...
-Created fingerprint in 1.983s
+Created fingerprint in 1.583s
 Duration: 296.80008
 Fingerprint (compressed): AQADtNQYhYkYnGhw7X....
 AcoustID response received

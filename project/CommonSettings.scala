@@ -28,6 +28,7 @@ object CommonSettings extends AutoPlugin {
     baseRoot := baseDirectory.value / ".." / "..",
     baseTarget := baseRoot.value / "target",
     target := baseTarget.value / "modules" / name.value,
+    publishMavenStyle := true,
     scalacOptions ++= Seq(
       "-language:higherKinds",
       "-language:implicitConversions"

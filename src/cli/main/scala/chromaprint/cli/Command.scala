@@ -34,13 +34,13 @@ object Command {
   object Args {
 
     val default: Args =
-      Args(Params.default, Vector.empty)
+      Args(Params.default, IndexedSeq.empty)
   }
 
   final case class Args
   (
     params: Params,
-    sources: Vector[AudioSource]
+    sources: IndexedSeq[AudioSource]
   ) {
 
     def withParams(params: Params): Args =
@@ -62,7 +62,7 @@ object Command {
       copy(sources = sources :+ source)
   }
 
-  def apply(args: Vector[String])(implicit fftImpl: FFT): Unit =
+  def apply(args: Seq[String])(implicit fftImpl: FFT): Unit =
     Parser(args).foreach(args => apply(args.params, args.sources))
 
   implicit val executionContext: ExecutionContext = ExecutionContext.global

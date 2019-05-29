@@ -7,7 +7,7 @@ import spire.math.UInt
 import cats.effect._
 import cats.implicits._
 
-trait Fingerprinter {
+abstract class Fingerprinter {
 
   implicit val executionContext: ExecutionContext = ExecutionContext.global
   implicit val cs: ContextShift[IO] = IO.contextShift(scala.concurrent.ExecutionContext.Implicits.global)
@@ -57,4 +57,15 @@ trait Fingerprinter {
 
 }
 
-object Fingerprinter extends Fingerprinter
+object Fingerprinter extends Fingerprinter {
+
+  class Impl(fft: FFT) extends Fingerprinter {
+    implicit val fftImpl: FFT = fft
+
+    def apply(audioSource: AudioSource): IO[Fingerprint] =
+      super.apply(audioSource)
+
+    def apply(config: Config, audioSource: AudioSource): IO[Fingerprint] =
+      super.apply(config, audioSource)
+  }
+}

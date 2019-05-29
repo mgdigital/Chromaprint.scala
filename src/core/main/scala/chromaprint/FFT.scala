@@ -3,8 +3,8 @@ package chromaprint
 import cats.effect.IO
 import fs2.{Chunk, Pipe}
 
-trait FFT {
+abstract class FFT {
 
-  def pipe(frameLength: Int): Pipe[IO, Chunk[Double], Vector[Double]]
+  def pipe(frameLength: Int): Pipe[IO, Chunk[Double], IndexedSeq[Double]]
 
 }

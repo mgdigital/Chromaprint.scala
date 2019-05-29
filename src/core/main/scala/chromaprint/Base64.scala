@@ -15,7 +15,7 @@ object Base64 {
     data.toBase64(alphabet).
       replaceAll("=+$", "")
 
-  def unapply(str: String): Option[Vector[Byte]] =
+  def unapply(str: String): Option[IndexedSeq[Byte]] =
     decode(str) match {
       case Left(_) =>
         None
@@ -23,10 +23,10 @@ object Base64 {
         Some(bytes)
     }
 
-  def decode(str: String): Either[EncoderException,Vector[Byte]] =
+  def decode(str: String): Either[EncoderException,IndexedSeq[Byte]] =
     ByteVector.fromBase64Descriptive(str, alphabet) match {
       case Right(bv) =>
-        Right(bv.toArray.toVector)
+        Right(bv.toArray.toIndexedSeq)
       case Left(err) =>
         Left(new EncoderException(err))
     }

@@ -5,7 +5,7 @@ import spire.math.UInt
 
 object FingerprintCalculator {
 
-  val grayCode: Vector[UInt] =
+  val grayCode: IndexedSeq[UInt] =
     Vector(
       0,
       1,
@@ -13,8 +13,8 @@ object FingerprintCalculator {
       2
     ).map(UInt(_))
 
-  def pipe[F[_]](config: Classifier.Config): Pipe[F,Vector[Double],UInt] =
-    _.mapAccumulate[Vector[Vector[Double]],Option[UInt]](Vector.empty[Vector[Double]]){
+  def pipe[F[_]](config: Classifier.Config): Pipe[F,IndexedSeq[Double],UInt] =
+    _.mapAccumulate[IndexedSeq[IndexedSeq[Double]],Option[UInt]](IndexedSeq.empty[IndexedSeq[Double]]){
       (rows, thisRow) =>
         val newRows = (rows :+ thisRow) takeRight config.maxFilterSpan
         val sub = if (newRows.length < config.maxFilterWidth) {
@@ -28,7 +28,7 @@ object FingerprintCalculator {
   def subFingerprint
   (
     config: Classifier.Config,
-    integral: Vector[Vector[Double]],
+    integral: IndexedSeq[IndexedSeq[Double]],
     offset: Int
   ): UInt =
     config.classifiers.foldLeft(UInt(0)){

@@ -14,7 +14,7 @@ class ChromaFilterSpec extends AbstractSpec {
       Vector( 2, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 )
     )
 
-    val image: Vector[Vector[Double]] = chunks.
+    val image: IndexedSeq[IndexedSeq[Double]] = chunks.
       through(ChromaFilter.pipe(coefficients)).
       compile.toVector
 
@@ -33,7 +33,7 @@ class ChromaFilterSpec extends AbstractSpec {
       Vector( 3.0, 8.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 )
     )
 
-    val image: Vector[Vector[Double]] = chunks.
+    val image: IndexedSeq[IndexedSeq[Double]] = chunks.
       through(ChromaFilter.pipe(coefficients)).
       compile.toVector
 
@@ -52,7 +52,7 @@ class ChromaFilterSpec extends AbstractSpec {
       Vector( 2.0, 7.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 )
     )
 
-    val image: Vector[Vector[Double]] = chunks.
+    val image: IndexedSeq[IndexedSeq[Double]] = chunks.
       through(ChromaFilter.pipe(coefficients)).
       compile.toVector
 

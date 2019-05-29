@@ -7,7 +7,7 @@ object Classifier {
   def subtractLog(a: Double, b: Double): Double =
     log(a + 1) - log(b + 1)
 
-  type Extract = (Vector[Vector[Double]], Int, Int, Int, Int) => Double
+  type Extract = (IndexedSeq[IndexedSeq[Double]], Int, Int, Int, Int) => Double
 
   final case class FilterType
   (
@@ -18,7 +18,7 @@ object Classifier {
 
     def apply
     (
-      image: Vector[Vector[Double]],
+      image: IndexedSeq[IndexedSeq[Double]],
       x: Int,
       y: Int,
       w: Int,
@@ -80,7 +80,7 @@ object Classifier {
         area(i, x + (2 * w / 3), y, x + w - 1, y + h - 1)
   )
 
-  val filters: Vector[FilterType] = Vector(
+  val filters: IndexedSeq[FilterType] = IndexedSeq(
     filter0,
     filter1,
     filter2,
@@ -114,7 +114,7 @@ object Classifier {
     width: Int
   ) {
 
-    def apply(image: Vector[Vector[Double]], x: Int): Double =
+    def apply(image: IndexedSeq[IndexedSeq[Double]], x: Int): Double =
       filterType(image, x, y, width, height)
   }
 
@@ -140,7 +140,7 @@ object Classifier {
     }
   }
 
-  final case class Config(classifiers: Vector[Classifier]) {
+  final case class Config(classifiers: IndexedSeq[Classifier]) {
 
     lazy val length: Int = classifiers.length
 
@@ -152,6 +152,6 @@ object Classifier {
 
 final case class Classifier(filter: Classifier.Filter, quantizer: Classifier.Quantizer) {
 
-  def apply(image: Vector[Vector[Double]], offset: Int): Int =
+  def apply(image: IndexedSeq[IndexedSeq[Double]], offset: Int): Int =
     quantizer(filter(image, offset))
 }

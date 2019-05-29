@@ -94,9 +94,7 @@ lazy val root = (project in file("."))
   .settings(
     name := "chromaprint",
     mainClass := Some("chromaprint.Main"),
-    unmanagedSourceDirectories in Compile ++= Seq(
-      baseDirectory.value / "src" / "dist"
-    ),
+    sourceDirectory := baseDirectory.value / "src" / "dist",
     sourceDirectories in Test ++= Seq("acoustid", "breeze", "cli", "core")
       .map(m => baseDirectory.value / "target" / "modules" / s"chromaprint-$m"),
     baseRoot := baseDirectory.value,
