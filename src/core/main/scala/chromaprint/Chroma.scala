@@ -102,7 +102,7 @@ object Chroma {
     import config._
 
     def features(frame: IndexedSeq[Double]): IndexedSeq[Double] =
-      (0 until numBands).map(featureBand(frame, _)).toVector
+      (0 until numBands) map (featureBand(frame, _))
 
     def featureBand(frame: IndexedSeq[Double], band: Int): Double =
       if (interpolate) {
