@@ -32,8 +32,12 @@ object CommonSettings extends AutoPlugin {
     trapExit := false,
     fork := true,
     scalacOptions ++= Seq(
+      "-deprecation",
+      "-explaintypes",
       "-language:higherKinds",
-      "-language:implicitConversions"
+      "-language:implicitConversions",
+      "-Ywarn-unused:_",
+      "-Ywarn-dead-code"
     ),
   )
 }
