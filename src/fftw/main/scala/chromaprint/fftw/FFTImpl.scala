@@ -18,7 +18,7 @@ object FFTImpl extends FFTAbstract {
     val plan: fftw3.fftw_plan = fftw_plan_r2r_1d(frameLength, signal, output, FFTW_FORWARD, FFTW_ESTIMATE.toInt)
   }
 
-  def pipe(frameLength: Int): Pipe[IO, Chunk[Double], Vector[Double]] =
+  def pipe(frameLength: Int): Pipe[IO, Chunk[Double], IndexedSeq[Double]] =
     input =>
       Stream.bracket(IO {
         new Context(frameLength)
@@ -28,7 +28,7 @@ object FFTImpl extends FFTAbstract {
         }
       ).map(pipeCtx(_)(input)).flatten
 
-  private def pipeCtx(ctx: Context): Pipe[IO,Chunk[Double],Vector[Double]] =
+  private def pipeCtx(ctx: Context): Pipe[IO,Chunk[Double],IndexedSeq[Double]] =
     _.map{ inputFrame: Chunk[Double] =>
       val plan = ctx.plan
       discard(ctx.signal.put(inputFrame.toArray, 0, ctx.frameLength))
