@@ -25,7 +25,7 @@ The algorithm performs a pipeline of operations on an audio stream to extract it
 
 ### Requirements
 
-The [FFmpeg](https://ffmpeg.org/) library must be installed, along with codecs for files to be analyzed, the `libavcodec-extra` package on Debian should provide all of these.
+This package is build for Scala 2.11 and 2.12. The [FFmpeg](https://ffmpeg.org/) library must be installed, along with codecs for files to be analyzed, the `libavcodec-extra` package on Debian should provide all of these.
 
 ### [SBT](https://www.scala-sbt.org/download.html)
 
