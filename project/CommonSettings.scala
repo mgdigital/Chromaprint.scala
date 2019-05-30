@@ -32,8 +32,12 @@ object CommonSettings extends AutoPlugin {
     trapExit := false,
     fork := true,
     scalacOptions ++= Seq(
+      "-deprecation",
+      "-explaintypes",
       "-language:higherKinds",
-      "-language:implicitConversions"
-    ),
+      "-language:implicitConversions",
+      "-Ywarn-dead-code"
+    ) ++
+      Some("-Ywarn-unused:_").filter(_ => scalaVersion.value == "2.12.8"),
   )
 }

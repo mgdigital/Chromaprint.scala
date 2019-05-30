@@ -37,8 +37,9 @@ object TestHelper {
   lazy val fpcalcRawData: Vector[UInt] =
     fpcalcRawBody.split(',').toVector.map(_.toLong).map(UInt(_))
 
+  def audioFile(extension: String): File =
+    new File(getClass.getResource(s"/kickinmule.$extension").getFile)
+
   def audioSource(extension: String): AudioSource =
-    AudioSource(
-      new File(getClass.getResource(s"/kickinmule.$extension").getFile)
-    )
+    AudioSource(audioFile(extension))
 }
