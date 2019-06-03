@@ -43,7 +43,7 @@ final case class Config
   interpolate: Boolean
 ) {
 
-  lazy val maxBytes: Int =
+  lazy val maxLength: Int =
     maxDuration * sampleRate
 
   lazy val framerConfig =

@@ -39,12 +39,12 @@ abstract class Fingerprinter {
   }
 
   def pipeRaw(config: Config)(implicit fftImpl: FFT): Pipe[IO,Short,UInt] =
-    audio => (config.maxBytes match {
-      case maxBytes if maxBytes > 0 =>
-        audio.take(maxBytes)
+    audio => (config.maxLength match {
+      case length if length > 0 =>
+        audio take length
       case _ =>
         audio
-    }).prefetchN(config.maxBytes max config.sampleRate).
+    }).prefetchN(config.maxLength max config.sampleRate).
       through(SilenceRemover.pipe(config.silenceRemover)).
       through(Framer.pipe(config.framerConfig)).
       through(HammingWindow.pipe(config.hammingWindow)).
