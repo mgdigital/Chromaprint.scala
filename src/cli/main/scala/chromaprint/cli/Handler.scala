@@ -72,22 +72,25 @@ object Handler {
         case r: AcoustIDResponse.Error =>
           console.putError(s"AcoustID lookup failed: ${r.message}")
         case r: AcoustIDResponse.OK =>
-          console.putStrLn(s"AcoustID response received:")
-          if (r.isEmpty) {
-            console.putError("No results were found")
-          } else {
-            Foldable[Vector].traverse_(r.nonEmptyResults.zipWithIndex) {
-              case (result, i) =>
-                for {
-                  _ <- console.putStrLn(s"${result.id}: Result ${i + 1} with score ${result.score}:")
-                  _ <- Foldable[Vector].traverse_(result.recordings){ recording =>
-                    console.putStrLn(
-                      s"${recording.id}: '${recording.title}' by '${recording.artists.map(_.name).mkString("; ")}'"
-                    )
-                  }
-                } yield ()
-            }
-          }
+          for {
+            _ <- console.putStrLn("AcoustID response received:")
+            _ <-
+              if (r.isEmpty) {
+                console.putError("No results were found")
+              } else {
+                Foldable[Vector].traverse_(r.nonEmptyResults.zipWithIndex) {
+                  case (result, i) =>
+                    for {
+                      _ <- console.putStrLn(s"${result.id}: Result ${i + 1} with score ${result.score}:")
+                      _ <- Foldable[Vector].traverse_(result.recordings){ recording =>
+                        console.putStrLn(
+                          s"${recording.id}: '${recording.title}' by '${recording.artists.map(_.name).mkString("; ")}'"
+                        )
+                      }
+                    } yield ()
+                }
+              }
+          } yield ()
       }
     } yield ()
 
