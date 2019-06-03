@@ -10,7 +10,7 @@ object Command {
   private[chromaprint] lazy val args: decline.Command[Args] =
     decline.Command(
       name = "chromaprint",
-      header = "Chromaprint CLI",
+      header = "Chromaprint CLI"
     )(Parser.args)
 
   def create
