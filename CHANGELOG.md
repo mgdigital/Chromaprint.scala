@@ -1,3 +1,6 @@
+## v0.3.0: 2019/06/03
+- Refactored CLI and AcoustID lookup to use Cats libraries
+
 ## v0.2.6: 2019/05/29
 - Improved Java interop
 
