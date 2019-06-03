@@ -1,6 +1,6 @@
 package chromaprint.acoustid
 
-object metadata {
+object Metadata {
 
   trait MetadataEntry {
     def id: String
@@ -15,12 +15,23 @@ object metadata {
     type TEntry = Recording
   }
 
-  case class Result
+  sealed trait Result extends MetadataEntry {
+    def id: String
+    def score: Float
+  }
+
+  final case class EmptyResult
+  (
+    id: String,
+    score: Float
+  ) extends Result
+
+  final case class NonEmptyResult
   (
     id: String,
     score: Float,
     recordings: Vector[Recording]
-  ) extends MetadataEntry
+  ) extends Result
 
   case class Recording
   (
@@ -35,5 +46,4 @@ object metadata {
     id: String,
     name: String
   ) extends MetadataEntry
-
 }

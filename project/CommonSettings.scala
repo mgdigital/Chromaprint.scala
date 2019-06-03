@@ -36,8 +36,10 @@ object CommonSettings extends AutoPlugin {
       "-explaintypes",
       "-language:higherKinds",
       "-language:implicitConversions",
-      "-Ywarn-dead-code"
-    ) ++
+      "-Ywarn-dead-code",
+      "-Ypartial-unification",
+    )
+      ++
       Some("-Ywarn-unused:_").filter(_ => scalaVersion.value == "2.12.8"),
   )
 }

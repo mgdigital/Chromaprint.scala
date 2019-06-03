@@ -43,16 +43,16 @@ final case class Config
   interpolate: Boolean
 ) {
 
-  lazy val maxBytes: Int =
+  lazy val maxLength: Int =
     maxDuration * sampleRate
 
-  lazy val framerConfig =
+  lazy val framerConfig: Framer.Config =
     Framer.Config(
       frameSize,
       overlap
     )
 
-  lazy val chromaRange =
+  lazy val chromaRange: Chroma.Range =
     Chroma.Range(
       minFreq,
       maxFreq,
@@ -60,12 +60,12 @@ final case class Config
       sampleRate
     )
 
-  lazy val chromaConfig =
+  lazy val chromaConfig: Chroma.Config =
     Chroma.Config(
       chromaRange,
       interpolate
     )
 
-  lazy val hammingWindow =
+  lazy val hammingWindow: IndexedSeq[Double] =
     HammingWindow.short(frameSize)
 }

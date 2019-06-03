@@ -34,7 +34,7 @@ In your `build.sbt`, add:
 ```scala
 resolvers += Resolver.bintrayRepo("mgdigital", "chromaprint")
 
-libraryDependencies += "com.github.mgdigital" %% "chromaprint" % "0.2.6"
+libraryDependencies += "com.github.mgdigital" %% "chromaprint" % "0.3.0"
 ```
 
 Then in your Scala application:
@@ -69,7 +69,7 @@ In your `pom.xml`, add:
         <dependency>
             <groupId>com.github.mgdigital</groupId>
             <artifactId>chromaprint_2.12</artifactId>
-            <version>0.2.6</version>
+            <version>0.3.0</version>
         </dependency>
     </dependencies>
 ```
