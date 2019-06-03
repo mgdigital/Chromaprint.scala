@@ -41,8 +41,10 @@ lazy val acoustid = (project in file("./src/acoustid"))
   .settings(
     name := "chromaprint-acoustid",
     libraryDependencies ++= Seq(
-      Dependencies.sttp,
-      Dependencies.playJson
+      Dependencies.circeGeneric,
+      Dependencies.http4sClient,
+      Dependencies.http4sDsl,
+      Dependencies.http4sCirce
     )
   )
   .disablePlugins(org.bytedeco.sbt.javacpp.Plugin, AssemblyPlugin)
@@ -53,7 +55,9 @@ lazy val cli = (project in file("./src/cli"))
   .settings(
     name := "chromaprint-cli",
     libraryDependencies ++= Seq(
-      Dependencies.scopt
+      Dependencies.console4Cats,
+      Dependencies.decline,
+      Dependencies.http4sClient,
     )
   )
   .disablePlugins(org.bytedeco.sbt.javacpp.Plugin, AssemblyPlugin)
@@ -98,7 +102,10 @@ lazy val root = (project in file("."))
     sourceDirectories in Test ++= Seq("acoustid", "breeze", "cli", "core")
       .map(m => baseDirectory.value / "target" / "modules" / s"chromaprint-$m"),
     baseRoot := baseDirectory.value,
-    target := baseTarget.value
+    target := baseTarget.value,
+    libraryDependencies ++= Seq(
+      Dependencies.http4sBlazeClient,
+    )
   )
   .disablePlugins(org.bytedeco.sbt.javacpp.Plugin)
   .enablePlugins(GitVersioning, CodecsPlugin)
