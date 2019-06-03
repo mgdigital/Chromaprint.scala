@@ -15,7 +15,7 @@ object Metadata {
     type TEntry = Recording
   }
 
-  sealed trait BaseResult extends MetadataEntry {
+  sealed trait Result extends MetadataEntry {
     def id: String
     def score: Float
   }
@@ -24,14 +24,14 @@ object Metadata {
   (
     id: String,
     score: Float
-  ) extends BaseResult
+  ) extends Result
 
-  final case class Result
+  final case class NonEmptyResult
   (
     id: String,
     score: Float,
     recordings: Vector[Recording]
-  ) extends BaseResult
+  ) extends Result
 
   case class Recording
   (

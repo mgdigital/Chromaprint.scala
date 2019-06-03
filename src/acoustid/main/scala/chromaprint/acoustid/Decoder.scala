@@ -7,11 +7,11 @@ object Decoder {
 
   import io.circe.Decoder
 
-  implicit val decodeNonEmptyResult: Decoder[Metadata.Result] = deriveDecoder[Metadata.Result]
+  implicit val decodeNonEmptyResult: Decoder[Metadata.NonEmptyResult] = deriveDecoder[Metadata.NonEmptyResult]
 
   implicit val decodeEmptyResult: Decoder[Metadata.EmptyResult] = deriveDecoder[Metadata.EmptyResult]
 
-  implicit val decodeResult: Decoder[Metadata.BaseResult] = decodeNonEmptyResult.either(decodeEmptyResult).map{
+  implicit val decodeResult: Decoder[Metadata.Result] = decodeNonEmptyResult.either(decodeEmptyResult).map{
     case Left(r) =>
       r
     case Right(r) =>
