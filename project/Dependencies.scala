@@ -3,11 +3,12 @@ import sbt._
 object Dependencies {
 
   object Versions {
-    val spire = "0.16.1"
-    val fs2 = "1.0.4"
-    val circe = "0.11.1"
-    val http4s = "0.20.1"
-    val console4Cats = "0.7.0"
+    val spire = "0.17.0-M1"
+    val fs2 = "1.1.0-M1"
+    val circe = "0.12.0-M4"
+    val http4s = "0.21.0-M1"
+    val cats = "2.0.0-M4"
+    val console4Cats = "0.8.0-M1"
     val decline = "0.6.2"
     val jflacCodec = "1.5.2"
     val mp3Codec = "1.9.5-1"
@@ -23,6 +24,9 @@ object Dependencies {
 
   val spire = "org.typelevel" %% "spire" % Versions.spire
   val fs2 = "co.fs2" %% "fs2-core" % Versions.fs2
+
+  val cats = "org.typelevel" %% "cats" % Versions.cats
+  val catsEffect = "org.typelevel" %% "cats-effect" % Versions.cats
 
   val circeGeneric = "io.circe" %% "circe-generic" % Versions.circe
 
