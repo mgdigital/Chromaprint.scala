@@ -49,6 +49,7 @@ object Client {
     lookup(Request(config, Params(fingerprint)))
 
   def lookup(request: Request)(implicit httpClient: Resource[IO, Client[IO]]): IO[Response] =
-    httpClient.use(_.expect[Response](transformRequest(request)))
+    httpClient.use(_.expect[Response](transformRequest(request))
+      .handleErrorWith(e => IO.pure(Response.Error(e.getMessage))))
 
 }

@@ -40,6 +40,6 @@ object CommonSettings extends AutoPlugin {
       "-Ypartial-unification",
     )
       ++
-      Some("-Ywarn-unused:_").filter(_ => scalaVersion.value == "2.12.8"),
+      Some("-Ywarn-unused:_").filter(_ => CrossVersion.partialVersion(scalaVersion.value).contains((2, 12))),
   )
 }

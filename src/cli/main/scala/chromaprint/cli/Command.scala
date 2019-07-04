@@ -2,7 +2,7 @@ package chromaprint.cli
 
 import cats.effect.{Clock, Console, IO, Resource}
 import com.monovore.decline
-import chromaprint._
+import chromaprint.Fingerprinter
 import org.http4s.client.Client
 
 object Command {
