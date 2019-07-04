@@ -2,12 +2,15 @@ import scala.io.Source
 
 package object chromaprint {
 
-  lazy val version: String =
-    Source.fromURL(getClass.getResource("/version.properties")).
-      mkString.
-      split("^version=", 2).
-      lift(1).
-      getOrElse{throw new RuntimeException("Cannot parse version number")}
+  lazy val version: String = {
+    val source = Source.fromURL(getClass.getResource("/version.properties"))
+    val version = source.mkString
+      .split("^version=", 2)
+      .lift(1)
+      .getOrElse{throw new RuntimeException("Cannot parse version number")}
+    source.close()
+    version
+  }
 
   def discard(evaluateForSideEffectOnly: Any): Unit = {
     val _: Any = evaluateForSideEffectOnly
