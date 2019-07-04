@@ -2,7 +2,7 @@
 
 An implementation of the [Chromaprint](https://github.com/acoustid/chromaprint)/[AcoustID](https://acoustid.org/) audio fingerprinting algorithm for the JVM, created originally in C++ by [Lukáš Lalinský](https://oxygene.sk/).
 
-[![CircleCI](https://circleci.com/gh/mgdigital/Chromaprint.scala/tree/master.svg?style=svg)](https://circleci.com/gh/mgdigital/Chromaprint.scala/tree/master) [![codecov](https://codecov.io/gh/mgdigital/Chromaprint.scala/branch/master/graph/badge.svg)](https://codecov.io/gh/mgdigital/Chromaprint.scala)
+[ ![Download](https://api.bintray.com/packages/mgdigital/chromaprint/chromaprint/images/download.svg) ](https://bintray.com/mgdigital/chromaprint/chromaprint/_latestVersion) [![CircleCI](https://circleci.com/gh/mgdigital/Chromaprint.scala/tree/master.svg?style=svg)](https://circleci.com/gh/mgdigital/Chromaprint.scala/tree/master) [![codecov](https://codecov.io/gh/mgdigital/Chromaprint.scala/branch/master/graph/badge.svg)](https://codecov.io/gh/mgdigital/Chromaprint.scala)
 
 ## What does it do?
 
