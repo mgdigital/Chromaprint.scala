@@ -3,15 +3,10 @@ package chromaprint
 import java.io.{BufferedInputStream, File, FileInputStream, InputStream}
 import java.net.{MalformedURLException, URL}
 import javax.sound.sampled._
-import scala.concurrent.ExecutionContext
 import cats.effect._
-import cats.implicits._
 import fs2.{Chunk, Pipe, Pure, Stream}
 
 object AudioSource {
-
-  implicit val executionContext: ExecutionContext = ExecutionContext.global
-  implicit val cs: ContextShift[IO] = IO.contextShift(scala.concurrent.ExecutionContext.Implicits.global)
 
   val targetSampleSize: Int = 16
   val targetChannels: Int = 1
@@ -138,7 +133,7 @@ object AudioSource {
       AudioSource.targetFormat(sampleRate)
 
     protected def acquireIntermediateAudioInputStream(sampleRate: Int): IO[AudioInputStream] =
-      IO.shift *> acquireAudioInputStream map { stream =>
+      acquireAudioInputStream map { stream =>
         if (!AudioSystem.isConversionSupported(targetFormat(sampleRate), stream.getFormat)) {
           if (AudioSystem.isConversionSupported(AudioFormat.Encoding.PCM_SIGNED, stream.getFormat)) {
             AudioSystem.getAudioInputStream(AudioFormat.Encoding.PCM_SIGNED, stream)
@@ -151,7 +146,7 @@ object AudioSource {
       }
 
     protected def acquireResampledAudioInputStream(sampleRate: Int): IO[AudioInputStream] =
-      IO.shift *> acquireIntermediateAudioInputStream(sampleRate) map { intermediate =>
+      acquireIntermediateAudioInputStream(sampleRate) map { intermediate =>
         val intermediateFormat: AudioFormat = intermediate.getFormat
         val finalFormat = targetFormat(sampleRate)
         if (intermediateFormat.getChannels != 1 || intermediateFormat.getSampleRate != sampleRate) {
@@ -185,10 +180,10 @@ object AudioSource {
       IO(AudioSystem.getAudioFileFormat(file))
 
     protected def acquireAudioInputStream: IO[AudioInputStream] =
-      IO.shift *> IO(AudioSystem.getAudioInputStream(file))
+      IO(AudioSystem.getAudioInputStream(file))
 
     protected def acquireRawInputStream: IO[InputStream] =
-      IO.shift *> IO(new BufferedInputStream(new FileInputStream(file)))
+      IO(new BufferedInputStream(new FileInputStream(file)))
 
   }
 
@@ -201,7 +196,7 @@ object AudioSource {
       IO(AudioSystem.getAudioFileFormat(url))
 
     def acquireAudioInputStream: IO[AudioInputStream] =
-      IO.shift *> IO(AudioSystem.getAudioInputStream(url))
+      IO(AudioSystem.getAudioInputStream(url))
   }
 
   case class AudioInputStreamSource(stream: InputStream) extends AudioSystemSource {
