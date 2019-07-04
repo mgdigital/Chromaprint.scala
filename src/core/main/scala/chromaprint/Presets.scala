@@ -26,24 +26,25 @@ object Presets {
       silenceRemover = SilenceRemover.Config.default.copy(threshold = 50)
     )
 
-  // scalastyle:on magic.number
-
-  lazy val map: Map[Int,Config] =
-    Seq(
-      algorithm1,
-      algorithm2,
-      algorithm3,
-      algorithm4
-    ).foldLeft(Map.empty[Int,Config]) {
-      (m, p) => m.updated(p.algorithm, p)
+  def apply(algorithm: Int): Option[Config] =
+    algorithm match {
+      case 1 =>
+        Some(algorithm1)
+      case 2 =>
+        Some(algorithm2)
+      case 3 =>
+        Some(algorithm3)
+      case 4 =>
+        Some(algorithm4)
+      case _ =>
+        None
     }
 
-  def apply(algorithm: Int): Config =
-    map(algorithm)
+  // scalastyle:on magic.number
 
   lazy val default: Config =
     algorithm2
 
   def exists(algorithm: Int): Boolean =
-    map.contains(algorithm)
+    apply(algorithm).isDefined
 }
