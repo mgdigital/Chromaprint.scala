@@ -1,3 +1,8 @@
+## v0.3.1: 2019/07/24
+- Improve CLI; fix non-standard algorithms
+- Improve AcoustID lookup error handling
+- Upgrade some dependencies
+
 ## v0.3.0: 2019/06/03
 - Refactored CLI and AcoustID lookup to use Cats libraries
 

@@ -32,9 +32,9 @@ This package is build for Scala 2.11 and 2.12. The [FFmpeg](https://ffmpeg.org/)
 In your `build.sbt`, add:
 
 ```scala
-resolvers += Resolver.bintrayRepo("mgdigital", "chromaprint")
+resolvers += Resolver.jcenterRepo
 
-libraryDependencies += "com.github.mgdigital" %% "chromaprint" % "0.3.0"
+libraryDependencies += "com.github.mgdigital" %% "chromaprint" % "0.3.1"
 ```
 
 Then in your Scala application:
@@ -59,9 +59,9 @@ In your `pom.xml`, add:
 
     <repositories>
         <repository>
-            <id>bintray-chromaprint</id>
-            <name>bintray</name>
-            <url>https://dl.bintray.com/mgdigital/chromaprint</url>
+            <id>jcenter</id>
+            <name>jcenter</name>
+            <url>https://jcenter.bintray.com/</url>
         </repository>
     </repositories>
 
@@ -69,7 +69,7 @@ In your `pom.xml`, add:
         <dependency>
             <groupId>com.github.mgdigital</groupId>
             <artifactId>chromaprint_2.12</artifactId>
-            <version>0.3.0</version>
+            <version>0.3.1</version>
         </dependency>
     </dependencies>
 ```
