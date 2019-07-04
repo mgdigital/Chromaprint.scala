@@ -35,27 +35,18 @@ object Handler {
           finishTime <- clock.monotonic(MILLISECONDS)
           timeInSeconds = (finishTime - startTime).toFloat / 1000
           _ <- console.putStrLn(s"Generated fingerprint in ${timeInSeconds}s")
-          _ <- if (params.showRaw) {
-            console.putStrLn(s"Fingerprint (raw): ${fp.data}")
-          } else {
-            IO.unit
-          }
-          _ <- if (params.showCompressed) {
-            console.putStrLn(s"Fingerprint (compressed): ${fp.compressed}")
-          } else {
-            IO.unit
-          }
-          _ <- if (params.showHash) {
-            console.putStrLn(s"Hash: ${fp.hash}")
-          } else {
-            IO.unit
-          }
-          _ <- params.acoustId.filter(_ => i == 0) match {
-            case Some(acoustId) =>
-              handleAcoustIDLookup(acoustId, fp)
-            case _ =>
-              IO.unit
-          }
+          _ <- Option(console.putStrLn(s"Fingerprint (raw): ${fp.data}")).
+            filter(_ => params.showRaw).
+            getOrElse(IO.unit)
+          _ <- Option(console.putStrLn(s"Fingerprint (compressed): ${fp.compressed}")).
+            filter(_ => params.showCompressed).
+            getOrElse(IO.unit)
+          _ <- Option(console.putStrLn(s"Hash: ${fp.hash}")).
+            filter(_ => params.showHash).
+            getOrElse(IO.unit)
+          _ <- params.acoustId.filter(_ => i == 0).
+            map(handleAcoustIDLookup(_, fp)).
+            getOrElse(IO.unit)
         } yield ()
       }
     } yield ()

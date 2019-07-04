@@ -10,13 +10,19 @@ object Parser {
 
   import Config.Defaults
 
-  val algorithm: Opts[Int] = Opts.option[Int](
+  val algorithm: Opts[Config] = Opts.option[Int](
     long = "algorithm",
     short = "a",
     help = s"Algorithm to use (default: ${Defaults.algorithm})"
   ).
     withDefault(Defaults.algorithm).
-    validate("Unknown algorithm.")(Presets.exists)
+    mapValidated[Config]{ iAlg => Presets(iAlg) match {
+      case Some(p) =>
+        Validated.validNel[String,Config](p)
+      case None =>
+        Validated.invalidNel[String,Config]("Unknown algorithm.")
+    }
+  }
 
   val maxDuration: Opts[Int] = Opts.option[Int](
     long = "length",
@@ -105,9 +111,8 @@ object Parser {
       })
 
   val config: Opts[Config] = (algorithm, maxDuration, sampleRate, frameSize, overlap).mapN{
-    (algorithm, maxDuration, sampleRate, frameSize, overlap) =>
-      Config.default.copy(
-        algorithm = algorithm,
+    (baseConfig, maxDuration, sampleRate, frameSize, overlap) =>
+      baseConfig.copy(
         maxDuration = maxDuration,
         sampleRate = sampleRate,
         frameSize = frameSize,
